@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Page</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #F1F1F1;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Navigation (Header) Styles */
+        nav.navbar {
+            background-color: #B71C1C;  /* Deep red */
+            padding: 20px 0;
+            box-shadow: 0 4px 10px #555;
+        }
+        
+        nav.navbar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        nav.navbar ul li {
+            margin: 0 20px;
+        }
+        
+        nav.navbar ul li a {
+            color: black;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        
+        nav.navbar ul li a:hover {
+            color: #857c7c;  /* Lively orange-red on hover */
+        }
+
+        /* Section Titles */
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #D32F2F;  /* Dark red */
+            margin-bottom: 40px;
+        }
+
+        /* Character Page Styles */
+        .character-page {
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 1000px;
+        }
+
+        .character-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .character-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .read-more {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .read-more:hover {
+            background-color: #0056b3;
+        }
+
+        .character-profile {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #920000;  /* Light grey */
+            color: #555;  /* Dark grey text */
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .filter-options {
+            margin-bottom: 20px;
+        }
+
+        .filter-options button {
+            margin-right: 10px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .filter-options button:hover {
+            background-color: #ddd;
+        }
+
+        .profile-content h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .profile-content p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">My Story</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="episodes.html">Episodes</a></li>
+                <li><a href="characters.html">Characters</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="character-page">
+            <h1 class="section-title">Meet the Characters</h1>
+            <div class="filter-options">
+                <button>All Characters</button>
+                <button>Main Characters</button>
+                <button>Friends</button>
+            </div>
+
+            <div class="character-cards">
+                <div class="card" onclick="openCharacterProfile('Anaya')">
+                    <img src="anaya.jpg" alt="Anaya" class="character-image">
+                    <h3>Anaya</h3>
+                    <p>Main Character</p>
+                    <p>A thoughtful girl adjusting to a new life.</p>
+                    <button class="read-more">Read More</button>
+                </div>
+                <div class="card" onclick="openCharacterProfile('Arjun')">
+                    <img src="arjun.jpg" alt="Arjun" class="character-image">
+                    <h3>Arjun</h3>
+                    <p>Childhood Friend</p>
+                    <p>Energetic and supportive with a passion for technology.</p>
+                    <button class="read-more">Read More</button>
+                </div>
+                <div class="card" onclick="openCharacterProfile('Nina')">
+                    <img src="nina.jpg" alt="Nina" class="character-image">
+                    <h3>Nina</h3>
+                    <p>Friend from School</p>
+                    <p>A tech-savvy girl with high expectations.</p>
+                    <button class="read-more">Read More</button>
+                </div>
+                <div class="card" onclick="openCharacterProfile('Ravi')">
+                    <img src="ravi.jpg" alt="Ravi" class="character-image">
+                    <h3>Ravi</h3>
+                    <p>Friend from School</p>
+                    <p>A quiet, artistic boy with a creative mind.</p>
+                    <button class="read-more">Read More</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="character-profile" id="characterProfile">
+            <button onclick="closeProfile()">Back to Characters</button>
+            <div class="profile-content">
+                <!-- Content will be dynamically loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Connect with us on Social Media</p>
+        <p>Contact | Privacy Policy | Terms of Use</p>
+    </footer>
+
+    <script>
+        function openCharacterProfile(character) {
+            document.getElementById("characterProfile").style.display = "block";
+            const profileContent = document.querySelector(".profile-content");
+
+            switch (character) {
+                case "Anaya":
+                    profileContent.innerHTML = `
+                        <h2>Anaya</h2>
+                        <p><strong>Background:</strong> A thoughtful girl adjusting to a new life after her father’s passing.</p>
+                        <p><strong>Personality:</strong> Introverted, kind-hearted, and thoughtful.</p>
+                        <p><strong>Key Moments:</strong> Learning to trust her friends, growing emotionally.</p>
+                        <p><strong>Quote:</strong> "Sometimes, it’s okay not to have all the answers."</p>
+                    `;
+                    break;
+                case "Arjun":
+                    profileContent.innerHTML = `
+                        <h2>Arjun</h2>
+                        <p><strong>Background:</strong> Energetic and optimistic, Arjun is Anaya’s best friend.</p>
+                        <p><strong>Personality:</strong> Extroverted, protective, loves technology.</p>
+                        <p><strong>Key Moments:</strong> Helps Anaya navigate her new school and life.</p>
+                        <p><strong>Quote:</strong> "When we work together, nothing’s impossible!"</p>
+                    `;
+                    break;
+                case "Nina":
+                    profileContent.innerHTML = `
+                        <h2>Nina</h2>
+                        <p><strong>Background:</strong> A tech-savvy, strong-willed friend from school.</p>
+                        <p><strong>Personality:</strong> Ambitious, smart, and occasionally impatient.</p>
+                        <p><strong>Key Moments:</strong> Supports Anaya during a tough decision.</p>
+                        <p><strong>Quote:</strong> "Don’t wait for things to happen, make them happen."</p>
+                    `;
+                    break;
+                case "Ravi":
+                    profileContent.innerHTML = `
+                        <h2>Ravi</h2>
+                        <p><strong>Background:</strong> A creative and artistic boy who enjoys drawing.</p>
+                        <p><strong>Personality:</strong> Calm, creative, and introspective.</p>
+                        <p><strong>Key Moments:</strong> Helps Anaya express her emotions through art.</p>
+                        <p><strong>Quote:</strong> "Art is the silent language of the soul."</p>
+                    `;
+                    break;
+            }
+        }
+
+        function closeProfile() {
+            document.getElementById("characterProfile").style.display = "none";
+        }
+    </script>
+</body>
+</html>

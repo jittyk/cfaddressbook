@@ -1,0 +1,4 @@
+<cfapplication 
+    name="AddressBookApp" 
+    sessionmanagement="true" 
+    sessiontimeout="#createTimeSpan(0, 0, 30, 0)#">
