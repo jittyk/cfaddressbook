@@ -1,8 +1,8 @@
- AddressBook Project - ColdFusion
+* AddressBook Project - ColdFusion
 
 This is an AddressBook web application built using ColdFusion. The app allows users to manage and store contact details, including name, phone number, email, and other relevant information.
 
- Features
+* Features
 
 - Add New Contact: Users can add new contacts with personal details such as name, phone, email, and address.
 - View Contacts: A contact list with search functionality.
@@ -11,16 +11,16 @@ This is an AddressBook web application built using ColdFusion. The app allows us
 - User Management: Admin panel for managing users and roles.
 - Responsive: The application is built to be responsive for mobile and desktop views.
 
- Technologies Used
+* Technologies Used
 
 - ColdFusion for the backend logic.
 - MySQL for storing contact and user data.
 - HTML/CSS for the front end, with a focus on clean, responsive design.
 - JavaScript/jQuery for client-side interactivity.
 
- Installation
+* Installation
 
- Prerequisites
+* Prerequisites
 
 - ColdFusion installed on your machine.
 - MySQL or MariaDB for database storage.
@@ -70,18 +70,18 @@ Steps
      http://localhost/Addressbook/
     
 
- Usage
+* Usage
 
 - Adding a Contact: Fill in the contact details in the "Add Contact" form and click "Submit".
 - Editing a Contact: Click the "Edit" button next to a contact to update their information.
 - Deleting a Contact: Click the "Delete" button to remove a contact from the list.
 - Search: Use the search bar to quickly find contacts by name or phone number.
 
- Contributing
+* Contributing
 
 We welcome contributions! If you have suggestions for improvements or want to fix bugs, feel free to fork this project, make your changes, and submit a pull request.
 
- How to Contribute
+* How to Contribute
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature-branch`).
@@ -89,11 +89,11 @@ We welcome contributions! If you have suggestions for improvements or want to fi
 4. Push to the branch (`git push origin feature-branch`).
 5. Create a pull request.
 
- License
+* License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
- Acknowledgments
+* Acknowledgments
 
 - ColdFusion for the server-side processing.
 - MySQL for the database backend.
