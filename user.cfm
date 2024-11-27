@@ -1,5 +1,5 @@
 
-<cfif not structKeyExists(session, "userId") or session.userId EQ "" or session.userId IS 0>
+<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
     <cflocation url="login.cfm">
 </cfif>
 
@@ -13,11 +13,13 @@
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+      
    </head>
    <body class="column min-vh-100">
       <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
          <div class="container-fluid">
             <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
+            <a class="nav-link text-white">Hello <cfoutput>#session.str_user_name#</cfoutput></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                <span class="navbar-toggler-icon"></span>
             </button>
@@ -32,7 +34,7 @@
                      </form>
                   </li>
                   <li class="nav-item">
-                     <a class="nav-link p-0" href="jitty.cfm">
+                     <a class="nav-link p-0" href="userprofile.cfm">
                         <img src="images\contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
                      </a>
                   </li>

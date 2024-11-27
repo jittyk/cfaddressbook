@@ -6,127 +6,69 @@
     <title>Admin Login - Address Book</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
-    <style>
-       body {
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f8f9fa;
-        }
-        .log-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        .login-container {
-            text-align: center;
-            display: inline-block;
-            padding: 20px;
-            margin: 60px;
-            width: 300px;
-            border: 1px solid #000000;
-            border-radius: 8px;
-            background: linear-gradient(to right, #000000, #222121);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            color: white;
-        }
-        input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #303841;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .danger {
-            color: red;
-            display: none; /* Initially hidden */
-        }
-        .links {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .links a {
-            color: #f1f1f1;
-            text-decoration: none;
-            font-size: 0.9em;
-        }
-        .links a:hover {
-            text-decoration: underline;
-        }
-        .navbar {
-            margin-bottom: 20px; /* Adds space below navbar */
-           
-            }
-            .footer {
-            margin-top: auto; /* Pushes footer to the bottom */
-            
-            }
-    </style>
+    <link rel="stylesheet" href="styles/adminlogin.css">
 </head>
 <body>
     <!-- Admin Login Validation -->
     <cfif structKeyExists(form, "submit")>
         <cfset datasource="dsn_address_book">
-        <!-- Admin login query with role validation -->
+        <!--- Query to authenticate admin login --->
         <cfquery name="qryAdmin" datasource="#datasource#">
-            SELECT u.*
+            SELECT 
+                u.int_user_id AS str_user_id, 
+                u.str_user_name AS str_user_name,
+                u.str_email, 
+                u.str_password
             FROM tbl_users u
-            JOIN tbl_user_roles r ON u.int_user_role_id = r.id
-            WHERE u.str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
-            AND u.str_password = <cfqueryparam value="#form.password#" cfsqltype="cf_sql_varchar">
-            AND u.cbr_status = 'A'
-            AND r.str_user_role = 'admin'
+            JOIN tbl_user_roles r 
+                ON u.int_user_role_id = r.int_id
+            WHERE 
+                u.str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
+                AND u.str_password = <cfqueryparam value="#form.password#" cfsqltype="cf_sql_varchar">
+                AND u.cbr_status = 'A'
+                AND r.str_user_role = 'admin'
         </cfquery>
     
+        <!--- Check if a record is found in the query --->
         <cfif qryAdmin.recordCount>
-            <cfset session.adminId = qryAdmin.intUserId>
-            <cfset session.username = qryAdmin.str_user_name>
-            <cflocation url="admin.cfm"> <!-- Redirect to admin dashboard -->
+            <!--- Assign session variables --->
+            <cfset session.int_admin_id = qryAdmin.str_user_id>
+            <cfset session.str_admin_user_name = qryAdmin.str_user_name>
+    
+            <!--- Redirect to admin page if login is successful --->
+            <cflocation url="admin.cfm">
         <cfelse>
-            <cfset session.loginError = "Invalid login credentials or you do not have admin access.">
-            <cflocation url="adminLogin.cfm"> <!-- Redirect back to admin login page -->
+            <!--- Set an error message in session and redirect back to login page if login fails --->
+            <cfset session.str_login_error = "Invalid login credentials or you do not have admin access.">
+            <cflocation url="adminLogin.cfm">
         </cfif>
     </cfif>
     
-
-
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
             <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#">Family</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Friends</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Colleagues</a></li>
                     <li class="nav-item">
-                        <form class="form-inline" method="get" action="user.cfm">
-                            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="searchTerm">
+                        <form class="d-flex" method="get" action="user.cfm">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchTerm">
                         </form>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link p-0" href="jitty.cfm">
-                            <img src="images/contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
+                        <a class="nav-link" href="userprofile.cfm">
+                            <img src="images/contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white d-flex align-items-center" href="adminLogout.cfm">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span class="ms-2">Logout</span>
+                            <i class="bi bi-box-arrow-right"></i><span class="ms-2">Logout</span>
                         </a>
                     </li>
                 </ul>
@@ -134,58 +76,59 @@
         </div>
     </nav>
 
-    <div class="log-container">
-        <div class="login-container">
-            <h1>Admin Login</h1>
-
-            <!-- Display error message if login failed -->
-            <cfif structKeyExists(session, "loginError") AND len(trim(session.loginError)) GT 0>
-                <cfoutput><div class="danger" style="display:block;">#session.loginError#</div></cfoutput>
-                <cfset session.loginError = "" /> <!-- Clear error message after displaying -->
-            </cfif>
-
-            <form action="adminLogin.cfm" method="post">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <br>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <br>
-                <button type="submit" name="submit">Login</button>
-
-                <div class="links">
-                    <a href="forgotPassword.cfm">Forgot Password?</a> &nbsp
-                    <a href="signup.cfm">Sign Up</a>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="log-container d-flex justify-content-center align-items-center ">
-        <a href="login.cfm"><button  style="margin-bottom:5px;">Login as User</button></a>
-    </div>
-    <footer class="mt-auto bg-dark text-white py-3">
-        <div class="container">
-           <div class="row">
-              <div class="col-12 mb-3">
-                 <ul class="list-unstyled d-flex flex-column flex-md-row justify-content-center mb-0">
-                    <li class="me-md-3 mb-2 mb-md-0"><a href="#" class="text-white text-decoration-none">Family</a></li>
-                    <li class="me-md-3 mb-2 mb-md-0"><a href="#" class="text-white text-decoration-none">Friends</a></li>
-                    <li><a href="#" class="text-white text-decoration-none">Colleagues</a></li>
-                 </ul>
-              </div>
-              <div class="col-12 mb-3 d-flex justify-content-center">
-                 <div class="col-10 col-md-6 col-lg-4">
-                    <form method="get" action="index.cfm">
-                       <input type="search" class="form-control" placeholder="Search" name="searchTerm">
+    <!-- Login Section -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card p-4 shadow">
+                    <h1 class="text-center mb-4">Admin Login</h1>
+                    <cfif structKeyExists(session, "str_login_error") AND len(trim(session.str_login_error)) GT 0>
+                        <div class="alert alert-danger text-center">
+                            <cfoutput>#session.str_login_error#</cfoutput>
+                        </div>
+                        <cfset session.str_login_error = "" />
+                    </cfif>
+                    <form action="" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" name="submit" class="btn btn-primary w-100">Login</button>
+                        <div class="text-center mt-3">
+                            <a href="forgotPassword.cfm" class="text-decoration-none">Forgot Password?</a> |
+                            <a href="signup.cfm" class="text-decoration-none">Sign Up</a>
+                        </div>
                     </form>
-                 </div>
-              </div>
-              <div class="col-12 text-center text-md-end">
-                 <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
-              </div>
-           </div>
+                </div>
+            </div>
         </div>
-     </footer>
+    </div>
+
+    <!-- User Login Button -->
+    <div class="text-center mt-4 mb-1">
+        <a href="login.cfm">
+            <button class="btn btn-secondary">Login as User</button>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-auto">
+        <div class="container text-center">
+            <ul class="list-inline mb-2">
+                <li class="list-inline-item"><a href="#" class="text-white text-decoration-none">Family</a></li>
+                <li class="list-inline-item"><a href="#" class="text-white text-decoration-none">Friends</a></li>
+                <li class="list-inline-item"><a href="#" class="text-white text-decoration-none">Colleagues</a></li>
+            </ul>
+            <form method="get" action="index.cfm" class="mb-3">
+                <input type="search" class="form-control w-50 mx-auto" placeholder="Search" name="searchTerm">
+            </form>
+            <p class="mb-0"><b>Address Book</b></p>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -1,23 +1,24 @@
-<cfif not structKeyExists(session, "userId") or session.userId EQ "" or session.userId IS 0>
+<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
     <cflocation url="login.cfm">
 </cfif>
 
 <cfset datasourceName = "dsn_Address_book">
 
 <!--- Initialize individual variables --->
-<cfset intContactId = "">      
-<cfset strFirstName = "">    
-<cfset strLastName = "">       
-<cfset intContact = "">       
-<cfset strEmail = "">
-<cfset strQualification = ""> 
-<cfset strCountry = "">     
-<cfset strCity = "">         
-<cfset strState = "">      
-<cfset strAddress = "">        
-<cfset intPincode = "">       
-<cfset strGender = "">         
-<cfset strLanguages = "">      
+<cfset int_contact_id = "">      
+<cfset str_first_name = "">    
+<cfset str_last_name = "">       
+<cfset int_contact = "">       
+<cfset str_email = "">
+<cfset str_qualification = ""> 
+<cfset str_country = "">     
+<cfset str_city = "">         
+<cfset str_state = "">      
+<cfset str_address = "">        
+<cfset int_pincode = "">       
+<cfset str_gender = "">         
+<cfset str_languages = "">      
+
 <cfset strErrorMsg = ''>       
 <cfset strSuccessMsg = ''>     
 
@@ -29,18 +30,18 @@
 
 <cfif structKeyExists(form, "btn-submit")>
     <!--- Collect form variables --->
-    <cfset strFirstName = trim(form.strFirstName)>
-    <cfset strLastName = trim(form.strLastName)>
-    <cfset intContact = trim(form.intContact)>
-    <cfset strEmail = trim(form.strEmail)>
-    <cfset strQualification = structKeyExists(form, "strQualification") ? form.strQualification : "">
-    <cfset strCountry = structKeyExists(form, "strCountry") ? form.strCountry : "">
-    <cfset strCity = trim(form.strCity)>
-    <cfset strState = trim(form.strState)>
-    <cfset strAddress = trim(form.strAddress)>
-    <cfset intPincode = trim(form.intPincode)>
-    <cfset strGender = structKeyExists(form, "strGender") ? form.strGender : "">
-    <cfset strLanguages = structKeyExists(form,"strLanguages")? form.strLanguages:"">
+    <cfset str_first_name = trim(form.str_first_name)>
+    <cfset str_last_name = trim(form.str_last_name)>
+    <cfset int_contact = trim(form.int_contact)>
+    <cfset str_email = trim(form.str_email)>
+    <cfset str_qualification = structKeyExists(form, "str_qualification") ? form.str_qualification : "">
+    <cfset str_country = structKeyExists(form, "str_country") ? form.str_country : "">
+    <cfset str_city = trim(form.str_city)>
+    <cfset str_state = trim(form.str_state)>
+    <cfset str_address = trim(form.str_address)>
+    <cfset int_pincode = trim(form.int_pincode)>
+    <cfset str_gender = structKeyExists(form, "str_gender") ? form.str_gender : "">
+    <cfset str_languages = structKeyExists(form,"str_languages")? form.str_languages:"">
     
     
 
@@ -57,80 +58,95 @@
 
 <cffunction name="getstrQualifications" access="public" returnType="void">
     <cfquery name="qrygetstrQualifications" datasource="#datasourceName#">
-        SELECT strQualificationName FROM qualifications
+        SELECT str_qualification_name FROM qualifications
     </cfquery>
 </cffunction>
 
 <cffunction name="getCountries" access="public" returnType="void">
     <cfquery name="qrygetCountries" datasource="#datasourceName#">
-        SELECT strCountryName FROM countries
+        SELECT str_country_name FROM countries
     </cfquery>
 </cffunction>
 
 <cffunction name="validateForm" access="public" returnType="string">
     <cfset var strErrorMsg = "">
     
-    <cfif strFirstName EQ "">
+    <cfif str_first_name EQ "">
         <cfset strErrorMsg &= 'Please enter your first name.<br>'>
     </cfif>
-    <cfif strLastName EQ "">
+    <cfif str_last_name EQ "">
         <cfset strErrorMsg &= 'Please enter your last name.<br>'>
     </cfif>
-    <cfif intContact EQ "">
+    <cfif int_contact EQ "">
         <cfset strErrorMsg &= 'Please enter your Contact number.<br>'>
     </cfif>
-    <cfif strEmail EQ "">
+    <cfif str_email EQ "">
         <cfset strErrorMsg &= 'Please enter your Email .<br>'>
     </cfif>
-    <cfif (strQualification EQ "")>
+    <cfif (str_qualification EQ "")>
         <cfset strErrorMsg &= 'Please select a Qualification.<br>'>
     </cfif>
-    <cfif (strCountry EQ "")>
+    <cfif (str_country EQ "")>
         <cfset strErrorMsg &= 'Please select a Country.<br>'>
     </cfif>
-    <cfif strCity EQ "">
+    <cfif str_city EQ "">
         <cfset strErrorMsg &= 'Please enter your City.<br>'>
     </cfif>
-    <cfif strState EQ "">
+    <cfif str_state EQ "">
         <cfset strErrorMsg &= 'Please enter your State.<br>'>
     </cfif>
-    <cfif strAddress EQ "">
+    <cfif str_address EQ "">
         <cfset strErrorMsg &= 'Please enter your Address.<br>'>
     </cfif>
-    <cfif intPincode EQ "">
+    <cfif int_pincode EQ "">
         <cfset strErrorMsg &= 'Please enter your Pincode.<br>'>
     </cfif>
-    <cfif (strGender EQ "")>
+    <cfif (str_gender EQ "")>
         <cfset strErrorMsg &= 'Please select a Gender.<br>'>
     </cfif>
-    <cfif (strLanguages EQ "")>
+    <cfif (str_languages EQ "")>
         <cfset strErrorMsg &= 'Please select at least one language.<br>'>
     </cfif>
     
     <cfreturn strErrorMsg>
 </cffunction>
 
-<cffunction name="saveintContact" access="public" returnType="void">
-    <cfquery datasource="#datasourceName#">
-        INSERT INTO contacts (
-            strFirstName, strLastName, intContact, strEmail, 
-            strQualification, strCountry, strCity, strState, 
-            strAddress, intPincode, strGender, strLanguages
-        ) VALUES (
-            <cfqueryparam value="#strFirstName#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strLastName#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#intContact#" cfsqltype="cf_sql_varchar">, <!--- Changed from strContact to intContact --->
-            <cfqueryparam value="#strEmail#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strQualification#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strCountry#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strCity#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strState#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strAddress#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#intPincode#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strGender#" cfsqltype="cf_sql_varchar">,
-            <cfqueryparam value="#strLanguages#" cfsqltype="cf_sql_varchar">
-        );
+<cffunction name="saveintContact" access="public" returnType="string">
+    <!--- Local variable for the response --->
+    <cfset var responseMessage = "">
+    
+    <!--- Check for duplicate contact number --->
+    <cfquery name="checkDuplicate" datasource="#datasourceName#">
+        SELECT int_contact 
+        FROM contacts
+        WHERE int_contact = <cfqueryparam value="#int_contact#" cfsqltype="cf_sql_varchar">
     </cfquery>
+    
+    <cfif checkDuplicate.recordcount EQ 0>
+     
+        <!--- Proceed with insert if no duplicate --->
+        <cfquery datasource="#datasourceName#">
+            INSERT INTO contacts (
+                str_first_name, str_last_name, int_contact, str_email, 
+                str_qualification, str_country, str_city, str_state, 
+                str_address, int_pincode, str_gender, str_languages
+            ) VALUES (
+                <cfqueryparam value="#str_first_name#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_last_name#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#int_contact#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_email#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_qualification#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_country#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_city#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_state#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_address#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#int_pincode#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_gender#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#str_languages#" cfsqltype="cf_sql_varchar">
+            )
+        </cfquery>
+    </cfif>
+
 </cffunction>
 
 
@@ -149,7 +165,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
            <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
-           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+           <a class="nav-link text-white">Hello <cfoutput>#session.str_user_name#</cfoutput></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
            </button>
            <div class="collapse navbar-collapse" id="navbarNav">
@@ -163,13 +180,13 @@
                     </form>
                  </li>
                  <li class="nav-item">
-                    <a class="nav-link p-0" href="jitty.cfm">
+                    <a class="nav-link p-0" href="userprofile.cfm">
                        <img src="images\contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
                     </a>
                  </li>
                  <!-- Logout button with icon -->
                  <li class="nav-item">
-                    <a class="nav-link text-white d-flex align-items-center" href="logout.cfm">
+                    <a class="nav-link text-white d-flex align-items-center" href="userLogout.cfm">
                        <i class="bi bi-box-arrow-right icon-white"></i> 
                        <span class="ms-2">Logout</span>
                     </a>
@@ -194,45 +211,45 @@
             <div class="mb-3 row">
                 <label for="fname" class="col-sm-2 col-form-label">First Name</label>
                 <div class="col-sm-10">
-                    <input type="text" id="fname" name="strFirstName" class="form-control" placeholder="Your name.." value="#strFirstName#">
+                    <input type="text" id="fname" name="str_first_name" class="form-control" placeholder="Your name.." value="#str_first_name#">
                 </div>
             </div>
             <div class="mb-3 row">
                 <label for="lname" class="col-sm-2 col-form-label">Last Name</label>
                 <div class="col-sm-10">
-                    <input type="text" id="lname" name="strLastName" class="form-control" placeholder="Your last name.." value="#strLastName#">
+                    <input type="text" id="lname" name="str_last_name" class="form-control" placeholder="Your last name.." value="#str_last_name#">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="intContact" class="col-sm-2 col-form-label">Contact no</label>
+                <label for="int_contact" class="col-sm-2 col-form-label">Contact no</label>
                 <div class="col-sm-10">
-                    <input type="text" id="intContact" name="intContact" class="form-control" placeholder="Contact number.." value="#intContact#">
+                    <input type="text" id="int_contact" name="int_contact" class="form-control" placeholder="Contact number.." value="#int_contact#">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="strEmail" class="col-sm-2 col-form-label">Email</label>
+                <label for="str_email" class="col-sm-2 col-form-label">Email</label>
                 <div class="col-sm-10">
-                    <input type="text" id="strEmail" name="strEmail" class="form-control" placeholder="Your Email.." value="#strEmail#">
+                    <input type="text" id="str_email" name="str_email" class="form-control" placeholder="Your Email.." value="#str_email#">
                 </div>
             </div>
             <!-- Qualification Dropdown -->
             <div class="mb-3 row">
-                <label for="strQualification" class="col-sm-2 col-form-label">Qualification</label>
+                <label for="str_qualification" class="col-sm-2 col-form-label">Qualification</label>
                 <div class="col-sm-10">
-                    <select id="strQualification" name="strQualification" class="form-select">
+                    <select id="str_qualification" name="str_qualification" class="form-select">
                         <option value="">Select Qualification</option>
                         <!-- Loop through qualifications from the database -->
-                        <cfquery name="qrygetQualifications" datasource="dsn_address_book">
-                            SELECT strQualificationName
+                        <cfquery name="qrygetQualifications" datasource="#datasourcename#">
+                            SELECT str_qualification_name
                             FROM qualifications
-                            ORDER BY strQualificationName
+                            ORDER BY str_qualification_name
                         </cfquery>
                         <cfloop query="qrygetQualifications">
-                            <option value="#qrygetQualifications.strQualificationName#"
-                                <cfif structKeyExists(form, "strQualification") AND form.strQualification EQ qrygetQualifications.strQualificationName>
+                            <option value="#qrygetQualifications.str_qualification_name#"
+                                <cfif structKeyExists(form, "str_qualification") AND form.str_qualification EQ qrygetQualifications.str_qualification_name>
                                     selected="selected"
                                 </cfif>>
-                                #qrygetQualifications.strQualificationName#
+                                #qrygetQualifications.str_qualification_name#
                             </option>
                         </cfloop>
                     </select>
@@ -243,22 +260,22 @@
 
 <!-- Country Dropdown -->
 <div class="mb-3 row">
-    <label for="strCountry" class="col-sm-2 col-form-label">Country</label>
+    <label for="str_country" class="col-sm-2 col-form-label">Country</label>
     <div class="col-sm-10">
-        <select id="strCountry" name="strCountry" class="form-select">
+        <select id="str_country" name="str_country" class="form-select">
             <option value="">Select Country</option>
             <!-- Loop through countries from the database -->
-            <cfquery name="qrygetCountries" datasource="dsn_address_book">
-                SELECT strCountryName
+            <cfquery name="qrygetCountries" datasource="#datasourcename#">
+                SELECT str_country_name
                 FROM countries
-                ORDER BY strCountryName
+                ORDER BY str_country_name
             </cfquery>
             <cfloop query="qrygetCountries">
-                <option value="#qrygetCountries.strCountryName#"
-                    <cfif structKeyExists(form, "strCountry") AND form.strCountry EQ qrygetCountries.strCountryName>
+                <option value="#qrygetCountries.str_country_name#"
+                    <cfif structKeyExists(form, "str_country") AND form.str_country EQ qrygetCountries.str_country_name>
                         selected="selected"
                     </cfif>>
-                    #qrygetCountries.strCountryName#
+                    #qrygetCountries.str_country_name#
                 </option>
             </cfloop>
         </select>
@@ -267,77 +284,83 @@
 
 
             <div class="mb-3 row">
-                <label for="strCity" class="col-sm-2 col-form-label">City</label>
+                <label for="str_city" class="col-sm-2 col-form-label">City</label>
                 <div class="col-sm-10">
-                    <input type="text" id="strCity" name="strCity" class="form-control" placeholder="Your City.." value="#strCity#">
+                    <input type="text" id="str_city" name="str_city" class="form-control" placeholder="Your City.." value="#str_city#">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="strState" class="col-sm-2 col-form-label">State</label>
+                <label for="str_state" class="col-sm-2 col-form-label">State</label>
                 <div class="col-sm-10">
-                    <input type="text" id="strState" name="strState" class="form-control" placeholder="Your State.." value="#strState#">
+                    <input type="text" id="str_state" name="str_state" class="form-control" placeholder="Your State.." value="#str_state#">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="strAddress" class="col-sm-2 col-form-label">Address</label>
+                <label for="str_address" class="col-sm-2 col-form-label">Address</label>
                 <div class="col-sm-10">
-                    <input type="text" id="strAddress" name="strAddress" class="form-control" placeholder="Your Address.." value="#strAddress#">
+                    <input type="text" id="str_address" name="str_address" class="form-control" placeholder="Your Address.." value="#str_address#">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="intPincode" class="col-sm-2 col-form-label">Pincode</label>
+                <label for="int_pincode" class="col-sm-2 col-form-label">Pincode</label>
                 <div class="col-sm-10">
-                    <input type="text" id="intPincode" name="intPincode" class="form-control" placeholder="Your Pincode.." value="#intPincode#">
+                    <input type="text" id="int_pincode" name="int_pincode" class="form-control" placeholder="Your Pincode.." value="#int_pincode#">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="strGender" class="col-sm-2 col-form-label">Gender</label>
+                <label for="str_gender" class="col-sm-2 col-form-label">Gender</label>
                 <div class="col-sm-10">
                     <div>
-                        <input type="radio" id="male" name="strGender" value="Male"
-                            <cfif strGender EQ "Male">checked="checked"</cfif>> 
+                        <input type="radio" id="male" name="str_gender" value="Male"
+                            <cfif str_gender EQ "Male">checked="checked"</cfif>> 
                         <label for="male">Male</label>
                     </div>
                     <div>
-                        <input type="radio" id="female" name="strGender" value="Female"
-                            <cfif strGender EQ "Female">checked="checked"</cfif>> 
+                        <input type="radio" id="female" name="str_gender" value="Female"
+                            <cfif str_gender EQ "Female">checked="checked"</cfif>> 
                         <label for="female">Female</label>
                     </div>
                     <div>
-                        <input type="radio" id="other" name="strGender" value="Other"
-                            <cfif strGender EQ "Other">checked="checked"</cfif>> 
+                        <input type="radio" id="other" name="str_gender" value="Other"
+                            <cfif str_gender EQ "Other">checked="checked"</cfif>> 
                         <label for="other">Other</label>
                     </div>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="strLanguages" class="col-sm-2 col-form-label">Languages</label>
+                <label for="str_languages" class="col-sm-2 col-form-label">Languages</label>
                 <div class="col-sm-10">
                     <div>
-                        <input type="checkbox" id="malayalam" name="strLanguages" value="Malayalam" 
-                            <cfif listFind(strLanguages, "Malayalam")>checked="checked"</cfif>>
+                        <input type="checkbox" id="malayalam" name="str_languages" value="Malayalam" 
+                            <cfif listFind(str_languages, "Malayalam")>checked="checked"</cfif>>
                         <label for="malayalam">Malayalam</label>
                     </div>
                     <div>
-                        <input type="checkbox" id="english" name="strLanguages" value="English"
-                            <cfif listFind(strLanguages, "English")>checked="checked"</cfif>>
+                        <input type="checkbox" id="english" name="str_languages" value="English"
+                            <cfif listFind(str_languages, "English")>checked="checked"</cfif>>
                         <label for="english">English</label>
                     </div>
                     <div>
-                        <input type="checkbox" id="hindi" name="strLanguages" value="Hindi"
-                            <cfif listFind(strLanguages, "Hindi")>checked="checked"</cfif>>
+                        <input type="checkbox" id="hindi" name="str_languages" value="Hindi"
+                            <cfif listFind(str_languages, "Hindi")>checked="checked"</cfif>>
                         <label for="hindi">Hindi</label>
                     </div>
                 </div>
             </div>
             
             
+            
             <div class="mb-3 row">
-                <div class="d-flex justify-content-end">
-                    <button type="reset" class="btn btn-secondary me-2">Reset</button>
-                    <button type="submit" name="btn-submit" class="btn btn-success">Submit</button>
-                </div>
-            </div>
+        <div class="col-sm-10 offset-sm-2 d-flex justify-content-end">
+            <button type="reset" class="btn btn-secondary me-2">Reset</button>
+            <button type="submit" id="btnSubmit" name="btn-submit" class="btn btn-success"
+                <cfif len(strSuccessMsg)>
+                    disabled="disabled"
+                </cfif>>
+                Submit
+            </button>
+        </div>
+    </div>
         </form>
     </cfoutput>
         <footer class="mt-auto bg-dark text-white py-3">

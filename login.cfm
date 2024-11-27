@@ -83,18 +83,32 @@
     <cfif structKeyExists(form, "submit")>
         <cfset datasource="dsn_address_book">
         <!-- User login query with role validation -->
-        <cfquery name="qryUser" datasource="#datasource#">
-            SELECT u.*
-            FROM tbl_users u
-            JOIN tbl_user_roles r ON u.int_user_role_id = r.id
-            WHERE u.str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
+    <cfquery name="qryUser" datasource="#datasource#">
+        SELECT 
+            u.str_first_name, u.str_user_name, u.str_email,u.int_user_id, r.str_user_role,u.str_phone
+        FROM 
+            tbl_users u
+        JOIN 
+            tbl_user_roles r 
+        ON 
+            u.int_user_role_id = r.int_id
+        WHERE 
+            u.str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
             AND u.str_password = <cfqueryparam value="#form.password#" cfsqltype="cf_sql_varchar">
-            AND u.cbr_status = 'A'
-            AND r.str_user_role = 'user' 
-        </cfquery>
+            AND u.cbr_status = 'A';
+    </cfquery>
+        
         <cfif qryUser.recordCount>
-            <cfset session.userId = qryUser.intUserId>
-            <cfset session.username = qryUser.str_user_name> 
+            <cfset session.user = {
+                str_user_name = qryUser.str_user_name,
+                str_first_name= qryUser.str_first_name,
+                int_user_id = qryUser.int_user_id,
+                str_email = qryUser.str_email,
+                str_user_role = qryUser.str_user_role,
+                str_phone = qryUser.str_phone
+            }>
+            <cfset session.int_user_id = qryUser.int_user_id>
+            <cfset session.str_user_name = qryUser.str_user_name> 
             <cflocation url="user.cfm"> <!-- Redirect to user dashboard -->
         <cfelse>
             <cfset session.loginError = "Invalid login credentials or you do not have user access.">
@@ -121,7 +135,7 @@
                         </form>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link p-0" href="jitty.cfm">
+                        <a class="nav-link p-0" href="userprofile.cfm">
                             <img src="images/contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
                         </a>
                     </li>

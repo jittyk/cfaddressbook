@@ -1,19 +1,14 @@
 <cfif not structKeyExists(session, "userId") or session.userId EQ "" or session.userId IS 0>
     <cflocation url="login.cfm">
 </cfif>
-<cfquery name="checkPermission" datasource="dsn_address_book">
-   SELECT intPermissionId
-   FROM tbl_user_permissions
-   WHERE intUserId = <cfqueryparam value="#session.userId#" cfsqltype="cf_sql_integer">
-  
-  
-</cfquery>
-<cfif checkPermission.recordCount NEQ 0>
-   <!-- Check if the user does not have permission (list contains the value 3) -->
-   <cfif NOT listFind(checkPermission.intPermissionId, 1)>
-       <cflocation url="contact.cfm">
-   </cfif>
+<cfif listFind(session.permissionList, 1)>
+   <!-- User has permission to delete -->
+   <cflocation url="contactDetails.cfm">
+<cfelse>
+   <!-- User does not have permission -->
+   <cflocation url="contact.cfm">
 </cfif>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +43,7 @@
                      </form>
                   </li>
                   <li class="nav-item">
-                     <a class="nav-link p-0" href="jitty.cfm">
+                     <a class="nav-link p-0" href="userprofile.cfm">
                         <img src="images\contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
                      </a>
                   </li>
@@ -68,9 +63,9 @@
 
 <!-- Query to fetch the selected contact details -->
 <cfquery name="contactDetails" datasource="dsn_address_book">
-    SELECT intContactId, strFirstName, strLastName, intContact, strEmail, strQualification, strCountry, strCity, strState, strAddress, intPincode, strGender, strLanguages
+    SELECT int_contact_id, str_first_name, str_last_name, int_contact, str_email, str_qualification, str_country, str_city, str_state, str_address, int_pincode, str_gender, str_languages
     FROM contacts
-    WHERE intContactId = <cfqueryparam value="#url.contactId#" cfsqltype="cf_sql_integer">
+    WHERE int_contact_id = <cfqueryparam value="#url.int_contact_id#" cfsqltype="cf_sql_integer">
 </cfquery>
 
 
@@ -80,18 +75,18 @@
     <body >
     <div class="log-container mt-4 ">
         <h2>Contact Details</h2>
-        <p><strong>First Name:</strong> #contactDetails.strFirstName#</p>
-        <p><strong>Last Name:</strong> #contactDetails.strLastName#</p>
-        <p><strong>Contact Number:</strong> #contactDetails.intContact#</p>
-        <p><strong>Email:</strong> #contactDetails.strEmail#</p>
-        <p><strong>Qualification:</strong> #contactDetails.strQualification#</p>
-        <p><strong>Country:</strong> #contactDetails.strCountry#</p>
-        <p><strong>City:</strong> #contactDetails.strCity#</p>
-        <p><strong>State:</strong> #contactDetails.strState#</p>
-        <p><strong>Address:</strong> #contactDetails.strAddress#</p>
-        <p><strong>Pincode:</strong> #contactDetails.intPincode#</p>
-        <p><strong>Gender:</strong> #contactDetails.strGender#</p>
-        <p><strong>Languages:</strong> #contactDetails.strLanguages#</p>
+        <p><strong>First Name:</strong> #contactDetails.str_first_name#</p>
+        <p><strong>Last Name:</strong> #contactDetails.str_last_name#</p>
+        <p><strong>Contact Number:</strong> #contactDetails.int_contact#</p>
+        <p><strong>Email:</strong> #contactDetails.str_email#</p>
+        <p><strong>Qualification:</strong> #contactDetails.str_qualification#</p>
+        <p><strong>Country:</strong> #contactDetails.str_country#</p>
+        <p><strong>City:</strong> #contactDetails.str_city#</p>
+        <p><strong>State:</strong> #contactDetails.str_state#</p>
+        <p><strong>Address:</strong> #contactDetails.str_address#</p>
+        <p><strong>Pincode:</strong> #contactDetails.int_pincode#</p>
+        <p><strong>Gender:</strong> #contactDetails.str_gender#</p>
+        <p><strong>Languages:</strong> #contactDetails.str_languages#</p>
     </div>
 <cfelse>
     <p>No contact details found.</p>

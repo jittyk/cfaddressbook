@@ -1,14 +1,6 @@
-<cfif not structKeyExists(session, "userId") or session.userId EQ "" or session.userId IS 0>
+<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
     <cflocation url="login.cfm">
 </cfif>
-<cfquery name="checkPermission" datasource="dsn_address_book">
-    SELECT intPermissionId
-    FROM tbl_user_permissions
-    WHERE intUserId = <cfqueryparam value="#session.userId#" cfsqltype="cf_sql_integer">
-   
-   
-</cfquery>
-
 
 
 <cfset datasource = "dsn_address_book">
@@ -23,15 +15,26 @@
 </cfquery>
 <!-- Query to fetch paginated contacts -->
 <cfquery name="getContacts" datasource="#datasource#">
-    SELECT intContactId, strFirstName, strLastName, intContact, strEmail, strQualification, strCountry, strCity, strState, strAddress, intPincode, strGender, strLanguages
+    SELECT int_contact_id, str_first_name, str_last_name, int_contact, str_email, str_qualification, str_country, str_city, str_state, str_address, int_pincode, str_gender, str_languages
     FROM contacts
-    ORDER BY strFirstName ASC
+    ORDER BY str_first_name ASC
     LIMIT #startRow - 1#, #perPage#
 </cfquery>
 <!-- Calculate Pagination Values -->
 <cfset totalPages = ceiling(totalCount.totalContacts / perPage)>
-<cfparam name="url.toggleId" default="0">
-<cfset toggleId = url.toggleId>
+<cfquery name="checkPermission" datasource="#datasource#">
+    SELECT int_permission_id
+    FROM tbl_user_permissions
+    WHERE int_user_id = <cfqueryparam value="#session.int_user_id#" cfsqltype="cf_sql_integer">
+</cfquery>
+
+<cfif checkPermission.recordCount NEQ 0>
+    <!-- Store the permission list in session -->
+    <cfset session.permissionList = ValueList(checkPermission.int_permission_id)>
+<cfelse>
+    <!-- If no permissions found, set an empty value -->
+    <cfset session.permissionList = "">
+</cfif>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -56,6 +59,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
             <div class="container-fluid">
                 <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
+                <a class="nav-link text-white">Hello <cfoutput>#session.str_user_name#</cfoutput></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -70,7 +74,7 @@
                             </form>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link p-0" href="jitty.cfm">
+                            <a class="nav-link p-0" href="userprofile.cfm">
                                 <img src="images\contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
                             </a>
                         </li>
@@ -100,41 +104,25 @@
                     <cfoutput query="getContacts">
                         <tr>
                             <td>
-                                <cfset hasPermission = false>
-                                <cfloop query="checkPermission">
-                                    <cfif intPermissionId EQ 1>
-                                        <cfset hasPermission = true>
-                                        <cfbreak> <!-- Exit the loop once a match is found -->
-                                    </cfif>
-                                </cfloop>
-                                <cfif hasPermission>
-                                    <a href="contactDetails.cfm?contactId=#intContactId#" class="contact-name" style="text-decoration: none;">
-                                        #strFirstName# #strLastName#
+                               
+                                <cfif listFind(session.permissionList, 1)>
+                                    <a href="contactDetails.cfm?int_contact_id=#int_contact_id#" class="contact-name" style="text-decoration: none;">
+                                        #str_first_name# #str_last_name#
                                     </a>
-                                <cfelse>  #strFirstName# #strLastName#
+                                  
+                                <cfelse>  #str_first_name# #str_last_name#
                                 </cfif>
                                 
                             </td>
                             <!-- Edit and Delete Links -->
                             <td>
-                                <cfset hasPermission = false>
-                                <cfloop query="checkPermission">
-                                    <cfif intPermissionId EQ 2>
-                                        <cfset hasPermission = true>
-                                        <cfbreak> <!-- Exit the loop once a match is found -->
-                                    </cfif>
-                                </cfloop>
-                                <cfif hasPermission>
-                                    <a href="editcontact.cfm?contactId=#intContactId#" class="btn btn-warning btn-sm">Edit</a>
+                               
+
+                                <cfif listFind(session.permissionList, 2)>
+                                    <a href="editcontact.cfm?int_contact_id=#int_contact_id#" class="btn btn-warning btn-sm">Edit</a>
                                 </cfif>
-                                <cfset hasPermission = false>
-                                <cfloop query="checkPermission">
-                                    <cfif intPermissionId EQ 3>
-                                        <cfset hasPermission = true>
-                                        <cfbreak> 
-                                    </cfif>
-                                </cfloop><cfif hasPermission>
-                                    <a href="deleteContact.cfm?contactId=#intContactId#" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this contact?')">Delete</a>
+                                <cfif listFind(session.permissionList, 3)>
+                                    <a href="deleteContact.cfm?int_contact_id=#int_contact_id#" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this contact?')">Delete</a>
                                 </cfif>
                                
                                 
