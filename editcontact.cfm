@@ -4,53 +4,38 @@
     <!-- Redirect to the login page if the session does not have a valid user ID -->
     <cflocation url="login.cfm">
 </cfif>
-
-<!-- Query to check the user's permissions -->
-<cfquery name="checkPermission" datasource="dsn_address_book">
-    SELECT intPermissionId
-    FROM tbl_user_permissions
-    WHERE intUserId = <cfqueryparam value="#session.userId#" cfsqltype="cf_sql_integer">
-</cfquery>
-
-<cfif checkPermission.recordCount NEQ 0>
-    <!-- Convert the query column to a comma-separated list -->
-    <cfset permissionList = ValueList(checkPermission.intPermissionId)>
-
-    <!-- Check if the user does not have permission (list does not contain the value 3) -->
-    <cfif NOT listFind(permissionList, 2)>
-        
-        <cflocation url="contact.cfm">
-        
-    </cfif>
+<cfif not listFind(session.permissionList, 2)>
+    <!-- User has permission to delete -->
+    <cflocation url="contact.cfm">
 </cfif>
 
-
-<cfif structKeyExists(url, "contactId")>
-    <cfquery name="contact" datasource="dsn_address_book">
-        SELECT strFirstName ,strLastName,intContact,strEmail,strQualification,strCountry,strCity,strState,strAddress,intPincode,strGender,strLanguages 
+<cfset  datasource="dsn_address_book">
+<cfif structKeyExists(url, "int_contact_id")>
+    <cfquery name="contact" datasource="#datasource#">
+        SELECT int_contact_id, str_first_name, str_last_name, int_contact, str_email, str_qualification, str_country, str_city, str_state, str_address, int_pincode, str_gender, str_languages
         FROM contacts 
-        WHERE intContactId = #url.contactId#
+        WHERE int_contact_id = #url.int_contact_id#
     </cfquery>
 </cfif>
 
 <cfif structKeyExists(form, "submit")>
     <!-- Handle form submission -->
-    <cfquery datasource="dsn_address_book">
+    <cfquery datasource="#datasource#">
         UPDATE contacts
         SET 
-            strFirstName = <cfqueryparam value="#form.strFirstName#" cfsqltype="cf_sql_varchar">,
-            strLastName = <cfqueryparam value="#form.strLastName#" cfsqltype="cf_sql_varchar">,
-            intContact = <cfqueryparam value="#form.intContact#" cfsqltype="cf_sql_varchar">,
-            strEmail = <cfqueryparam value="#form.strEmail#" cfsqltype="cf_sql_varchar">,
-            strQualification = <cfqueryparam value="#form.strQualification#" cfsqltype="cf_sql_varchar">,
-            strCountry = <cfqueryparam value="#form.strCountry#" cfsqltype="cf_sql_varchar">,
-            strCity = <cfqueryparam value="#form.strCity#" cfsqltype="cf_sql_varchar">,
-            strState = <cfqueryparam value="#form.strState#" cfsqltype="cf_sql_varchar">,
-            strAddress = <cfqueryparam value="#form.strAddress#" cfsqltype="cf_sql_varchar">,
-            intPincode = <cfqueryparam value="#form.intPincode#" cfsqltype="cf_sql_varchar">,
-            strGender = <cfqueryparam value="#form.strGender#" cfsqltype="cf_sql_varchar">,
-            strLanguages = <cfqueryparam value="#form.strLanguages#" cfsqltype="cf_sql_varchar">
-        WHERE intContactId = #url.contactId#
+            str_first_name = <cfqueryparam value="#form.str_first_name#" cfsqltype="cf_sql_varchar">,
+            str_last_name = <cfqueryparam value="#form.str_last_name#" cfsqltype="cf_sql_varchar">,
+            int_contact = <cfqueryparam value="#form.int_contact#" cfsqltype="cf_sql_varchar">,
+            str_email = <cfqueryparam value="#form.str_email#" cfsqltype="cf_sql_varchar">,
+            str_qualification = <cfqueryparam value="#form.str_qualification#" cfsqltype="cf_sql_varchar">,
+            str_country = <cfqueryparam value="#form.str_country#" cfsqltype="cf_sql_varchar">,
+            str_city = <cfqueryparam value="#form.str_city#" cfsqltype="cf_sql_varchar">,
+            str_state = <cfqueryparam value="#form.str_state#" cfsqltype="cf_sql_varchar">,
+            str_address = <cfqueryparam value="#form.str_address#" cfsqltype="cf_sql_varchar">,
+            int_pincode = <cfqueryparam value="#form.int_pincode#" cfsqltype="cf_sql_varchar">,
+            str_gender = <cfqueryparam value="#form.str_gender#" cfsqltype="cf_sql_varchar">,
+            str_languages = <cfqueryparam value="#form.str_languages#" cfsqltype="cf_sql_varchar">
+        WHERE int_contact_id = #url.int_contact_id#
     </cfquery>
      <cflocation url="contact.cfm">
 </cfif>
@@ -67,7 +52,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
            <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
-           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+           <a class="nav-link text-white">Hello <cfoutput>#session.str_user_name#</cfoutput></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
            </button>
            <div class="collapse navbar-collapse" id="navbarNav">
@@ -81,7 +67,7 @@
                     </form>
                  </li>
                  <li class="nav-item">
-                    <a class="nav-link p-0" href="jitty.cfm">
+                    <a class="nav-link p-0" href="userprofile.cfm">
                        <img src="images\contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
                     </a>
                  </li>
@@ -99,54 +85,54 @@
     <cfoutput>
     <div class="container mt-4">
         <h2>Edit Contact</h2>
-        <form method="post" action="editContact.cfm?contactId=#url.contactId#">
+        <form method="post" action="editContact.cfm?int_contact_id=#url.int_contact_id#">
             <div class="mb-3">
-                <label for="strFirstName" class="form-label">First Name</label>
-                <input type="text" class="form-control" id="strFirstName" name="strFirstName" value="#contact.strFirstName#" required>
+                <label for="str_first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="str_first_name" name="str_first_name" value="#contact.str_first_name#" required>
             </div>
             <div class="mb-3">
-                <label for="strLastName" class="form-label">Last Name</label>
-                <input type="text" class="form-control" id="strLastName" name="strLastName" value="#contact.strLastName#" required>
+                <label for="str_last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="str_last_name" name="str_last_name" value="#contact.str_last_name#" required>
             </div>
             <div class="mb-3">
-                <label for="intContact" class="form-label">Contact</label>
-                <input type="text" class="form-control" id="intContact" name="intContact" value="#contact.intContact#" required>
+                <label for="int_contact" class="form-label">Contact</label>
+                <input type="text" class="form-control" id="int_contact" name="int_contact" value="#contact.int_contact#" required>
             </div>
             <div class="mb-3">
-                <label for="strEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="strEmail" name="strEmail" value="#contact.strEmail#">
+                <label for="str_email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="str_email" name="str_email" value="#contact.str_email#">
             </div>
             <div class="mb-3">
-                <label for="strQualification" class="form-label">Qualification</label>
-                <input type="text" class="form-control" id="strQualification" name="strQualification" value="#contact.strQualification#">
+                <label for="str_qualification" class="form-label">Qualification</label>
+                <input type="text" class="form-control" id="str_qualification" name="str_qualification" value="#contact.str_qualification#">
             </div>
             <div class="mb-3">
-                <label for="strCountry" class="form-label">Country</label>
-                <input type="text" class="form-control" id="strCountry" name="strCountry" value="#contact.strCountry#">
+                <label for="str_country" class="form-label">Country</label>
+                <input type="text" class="form-control" id="str_country" name="str_country" value="#contact.str_country#">
             </div>
             <div class="mb-3">
-                <label for="strCity" class="form-label">City</label>
-                <input type="text" class="form-control" id="strCity" name="strCity" value="#contact.strCity#">
+                <label for="str_city" class="form-label">City</label>
+                <input type="text" class="form-control" id="str_city" name="str_city" value="#contact.str_city#">
             </div>
             <div class="mb-3">
-                <label for="strState" class="form-label">State</label>
-                <input type="text" class="form-control" id="strState" name="strState" value="#contact.strState#">
+                <label for="str_state" class="form-label">State</label>
+                <input type="text" class="form-control" id="str_state" name="str_state" value="#contact.str_state#">
             </div>
             <div class="mb-3">
-                <label for="strAddress" class="form-label">Address</label>
-                <input type="text" class="form-control" id="strAddress" name="strAddress" value="#contact.strAddress#">
+                <label for="str_address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="str_address" name="str_address" value="#contact.str_address#">
             </div>
             <div class="mb-3">
-                <label for="intPincode" class="form-label">Pincode</label>
-                <input type="text" class="form-control" id="intPincode" name="intPincode" value="#contact.intPincode#">
+                <label for="int_pincode" class="form-label">Pincode</label>
+                <input type="text" class="form-control" id="int_pincode" name="int_pincode" value="#contact.int_pincode#">
             </div>
             <div class="mb-3">
-                <label for="strGender" class="form-label">Gender</label>
-                <input type="text" class="form-control" id="strGender" name="strGender" value="#contact.strGender#">
+                <label for="str_gender" class="form-label">Gender</label>
+                <input type="text" class="form-control" id="str_gender" name="str_gender" value="#contact.str_gender#">
             </div>
             <div class="mb-3">
-                <label for="strLanguages" class="form-label">Languages</label>
-                <input type="text" class="form-control" id="strLanguages" name="strLanguages" value="#contact.strLanguages#">
+                <label for="str_languages" class="form-label">Languages</label>
+                <input type="text" class="form-control" id="str_languages" name="str_languages" value="#contact.str_languages#">
             </div>
             <button type="submit" name="submit" class="btn btn-primary mb-1">Update Contact</button>
         </form>

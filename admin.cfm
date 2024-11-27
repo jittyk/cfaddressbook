@@ -7,43 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Grayscale Table Theme */
-        .table {
-            background-color: #f8f9fa;
-        }
-         .table td {
-            vertical-align: middle;
-        }
-        .table th{
-            vertical-align: middle;
-            color: whitesmoke;
-            background-color: grey;
-            font-weight: bold;
-        }
-       
-       
-        .btn-outline-success {
-            border-color: #6c757d;
-            color: #6c757d;
-        }
-        .btn-outline-success:hover {
-            background-color: #6c757d;
-            color: #ffffff;
-        }
-    </style>
+    <link rel="stylesheet" href="styles\admin.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Check if the user is an Admin -->
-    <cfif not structKeyExists(session, "adminId") or session.adminId EQ "" or session.adminId IS 0>
+    <cfif not structKeyExists(session, "int_admin_id") or session.int_admin_id EQ "" or session.int_admin_id IS 0>
         <cflocation url="adminLogin.cfm">
     </cfif>
-
+    <cfset datasource="dsn_address_book">
     <!-- Handle the Approval/Reject Action -->
-    <cfif structKeyExists(form, "action") AND structKeyExists(form, "adminId")>
+    <cfif structKeyExists(form, "action") AND structKeyExists(form, "int_admin_id")>
         <!-- ColdFusion Query for Approve/Reject Actions -->
-        <cfquery name="qryUsers" datasource="dsn_address_book">
-            SELECT intUserId, str_email, str_user_name, str_phone, str_first_name, cbr_status
+        <cfquery name="qryUsers" datasource="#datasource#">
+            SELECT int_user_id, str_email, str_user_name, str_phone, str_first_name, cbr_status
             FROM tbl_users
             <cfif structKeyExists(form, "searchKey") AND len(trim(form.searchKey)) GT 0>
                 WHERE 
@@ -69,8 +45,8 @@
     <cfset startRecord = (currentPage - 1) * recordsPerPage>
 
     <!-- Count total records -->
-    <cfquery name="qryCount" datasource="dsn_address_book">
-        SELECT COUNT(intUserId) AS totalUsers
+    <cfquery name="qryCount" datasource="#datasource#">
+        SELECT COUNT(int_user_id) AS totalUsers
         FROM tbl_users
         WHERE int_user_role_id != 1
         <cfif structKeyExists(form, "searchKey") AND len(trim(form.searchKey)) GT 0>
@@ -84,8 +60,8 @@
     </cfquery>
 
     <!-- Fetch the users for the current page -->
-    <cfquery name="qryUsers" datasource="dsn_address_book">
-        SELECT intUserId, str_email, str_user_name, str_phone, str_first_name, cbr_status
+    <cfquery name="qryUsers" datasource="#datasource#">
+        SELECT int_user_id, str_email, str_user_name, str_phone, str_first_name, cbr_status
         FROM tbl_users
         WHERE int_user_role_id != 1
         <cfif structKeyExists(form, "searchKey") AND len(trim(form.searchKey)) GT 0>
@@ -96,14 +72,14 @@
                 str_first_name LIKE <cfqueryparam value="%#trim(form.searchKey)#%" cfsqltype="cf_sql_varchar">
             )
         </cfif>
-        ORDER BY intUserId
+        ORDER BY int_user_id
         LIMIT <cfqueryparam value="#recordsPerPage#" cfsqltype="cf_sql_integer">
         OFFSET <cfqueryparam value="#startRecord#" cfsqltype="cf_sql_integer">
     </cfquery>
     
 
-<cfif structKeyExists(form, "permissions") AND structKeyExists(form, "userId")>
-    <cfset intUserId = form.userId>
+<cfif structKeyExists(form, "permissions") AND structKeyExists(form, "int_user_id")>
+    <cfset int_user_id = form.int_user_id>
 
     <!-- Ensure permissions are in the correct format -->
     <cfif isArray(form.permissions)>
@@ -113,39 +89,39 @@
     </cfif>
 
     <!-- Get all current permissions assigned to the user -->
-    <cfquery name="qryCurrentPermissions" datasource="dsn_address_book">
-        SELECT intPermissionId
+    <cfquery name="qryCurrentPermissions" datasource="#datasource#">
+        SELECT int_permission_id
         FROM tbl_user_permissions
-        WHERE intUserId = <cfqueryparam value="#intUserId#" cfsqltype="cf_sql_integer">
+        WHERE int_user_id = <cfqueryparam value="#int_user_id#" cfsqltype="cf_sql_integer">
     </cfquery>
 
     <!-- Remove permissions not in the updated list -->
     <cfloop query="qryCurrentPermissions">
-        <cfif NOT listFind(updatedPermissionsList, qryCurrentPermissions.intPermissionId)>
-            <cfquery datasource="dsn_address_book">
+        <cfif NOT listFind(updatedPermissionsList, qryCurrentPermissions.int_permission_id)>
+            <cfquery datasource="#datasource#">
                 DELETE FROM tbl_user_permissions
-                WHERE intUserId = <cfqueryparam value="#intUserId#" cfsqltype="cf_sql_integer">
-                  AND intPermissionId = <cfqueryparam value="#qryCurrentPermissions.intPermissionId#" cfsqltype="cf_sql_integer">
+                WHERE int_user_id = <cfqueryparam value="#int_user_id#" cfsqltype="cf_sql_integer">
+                  AND int_permission_id = <cfqueryparam value="#qryCurrentPermissions.int_permission_id#" cfsqltype="cf_sql_integer">
             </cfquery>
         </cfif>
     </cfloop>
 
     <!-- Add new permissions -->
-    <cfloop list="#updatedPermissionsList#" index="permissionId">
+    <cfloop list="#updatedPermissionsList#" index="int_permission_id">
        
-        <cfquery name="qryCheckExistence" datasource="dsn_address_book">
-            SELECT COUNT(intUserId) AS Count
+        <cfquery name="qryCheckExistence" datasource="#datasource#">
+            SELECT COUNT(int_user_id) AS Count
             FROM tbl_user_permissions
-            WHERE intUserId = <cfqueryparam value="#intUserId#" cfsqltype="cf_sql_integer">
-              AND intPermissionId = <cfqueryparam value="#permissionId#" cfsqltype="cf_sql_integer">
+            WHERE int_user_id = <cfqueryparam value="#int_user_id#" cfsqltype="cf_sql_integer">
+              AND int_permission_id = <cfqueryparam value="#int_permission_id#" cfsqltype="cf_sql_integer">
         </cfquery>
 
         <cfif qryCheckExistence.Count EQ 0>
-            <cfquery datasource="dsn_address_book">
-                INSERT INTO tbl_user_permissions (intUserId, intPermissionId)
+            <cfquery datasource="#datasource#">
+                INSERT INTO tbl_user_permissions (int_user_id, int_permission_id)
                 VALUES (
-                    <cfqueryparam value="#intUserId#" cfsqltype="cf_sql_integer">,
-                    <cfqueryparam value="#permissionId#" cfsqltype="cf_sql_integer">
+                    <cfqueryparam value="#int_user_id#" cfsqltype="cf_sql_integer">,
+                    <cfqueryparam value="#int_permission_id#" cfsqltype="cf_sql_integer">
                 )
             </cfquery>
         </cfif>
@@ -153,14 +129,14 @@
 </cfif>
 <cfif isDefined("form.action") AND form.action EQ "updateStatus">
     <!-- Check if required fields are present -->
-    <cfif isDefined("form.userId") AND isDefined("form.status")>
+    <cfif isDefined("form.int_user_id") AND isDefined("form.status")>
         <!-- Validate the status value -->
         <cfif form.status EQ "A" OR form.status EQ "I">
             <!-- Update the user's status in the database -->
-            <cfquery datasource="dsn_address_book" name="updateUserStatus">
+            <cfquery datasource="#datasource#" name="updateUserStatus">
                 UPDATE tbl_users
                 SET cbr_status = <cfqueryparam value="#form.status#" cfsqltype="cf_sql_varchar">
-                WHERE intUserId = <cfqueryparam value="#form.userId#" cfsqltype="cf_sql_integer">
+                WHERE int_user_id = <cfqueryparam value="#form.int_user_id#" cfsqltype="cf_sql_integer">
             </cfquery>
 
             <!-- Display a success message -->
@@ -177,7 +153,7 @@
             <cfoutput><p style="color: red;">Error: Invalid status value.</p></cfoutput>
         </cfif>
     <cfelse>
-        <!-- Error: Missing userId or status -->
+        <!-- Error: Missing int_user_id or status -->
         <cfoutput><p style="color: red;">Error: User ID or Status is missing.</p></cfoutput>
     </cfif>
 </cfif>
@@ -241,7 +217,7 @@
                 <tbody>
                     <cfloop query="qryUsers">
                         <tr>
-                            <td>#intUserId#</td>
+                            <td>#int_user_id-3#</td>
                             <td>#str_first_name#</td>
                             <td>#str_email#</td>
                             <td>
@@ -254,20 +230,20 @@
                                 <cfif cbr_status NEQ "I">
                                     <!-- Permissions Checkbox List Form -->
                                     <form method="post" action="admin.cfm">
-                                        <input type="hidden" name="userId" value="#intUserId#">
+                                        <input type="hidden" name="int_user_id" value="#int_user_id#">
                                         <input type="hidden" name="action" value="updatePermissions">
 
                                         <!-- Query to get all available permissions -->
-                                        <cfquery name="qrygetAllPermissions" datasource="dsn_address_book">
-                                            SELECT intPermissionId, strPermissionName
+                                        <cfquery name="qrygetAllPermissions" datasource="#datasource#">
+                                            SELECT int_permission_id, str_permission_name
                                             FROM tbl_permissions
                                         </cfquery>
 
                                         <!-- Query to get the permissions assigned to the user -->
-                                        <cfquery name="qryUserPermissions" datasource="dsn_address_book">
-                                            SELECT intPermissionId
+                                        <cfquery name="qryUserPermissions" datasource="#datasource#">
+                                            SELECT int_permission_id
                                             FROM tbl_user_permissions
-                                            WHERE intUserId = <cfqueryparam value="#intUserId#" cfsqltype="cf_sql_integer">
+                                            WHERE int_user_id = <cfqueryparam value="#int_user_id#" cfsqltype="cf_sql_integer">
                                         </cfquery>
 
                                         <!-- Loop through all available permissions -->
@@ -276,10 +252,10 @@
                                                 <input 
                                                     type="checkbox" 
                                                     name="permissions" 
-                                                    value="#intPermissionId#" 
-                                                    <cfif qryUserPermissions.recordCount GT 0 AND listFind(valueList(qryUserPermissions.intPermissionId), qrygetAllPermissions.intPermissionId)>checked="checked"</cfif>
+                                                    value="#int_permission_id#" 
+                                                    <cfif qryUserPermissions.recordCount GT 0 AND listFind(valueList(qryUserPermissions.int_permission_id), qrygetAllPermissions.int_permission_id)>checked="checked"</cfif>
                                                 />
-                                                #strPermissionName#
+                                                #str_permission_name#
                                             </div>
                                         </cfloop>
 
@@ -294,7 +270,7 @@
                                 <cfif cbr_status EQ "P">
                                     <!-- Approve and Reject buttons are shown only when the status is Pending -->
                                     <form method="post">
-                                        <input type="hidden" name="userId" value="#intUserId#">
+                                        <input type="hidden" name="int_user_id" value="#int_user_id#">
                                         <input type="hidden" name="action" value="updateStatus">
                                         <button type="submit" name="status" value="A" class="btn btn-success">Approve</button>
                                         <button type="submit" name="status" value="I" class="btn btn-danger">Reject</button>
