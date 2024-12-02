@@ -1,11 +1,8 @@
-<cfif not structKeyExists(session, "userId") or session.userId EQ "" or session.userId IS 0>
+<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
     <cflocation url="login.cfm">
 </cfif>
-<cfif listFind(session.permissionList, 1)>
-   <!-- User has permission to delete -->
-   <cflocation url="contactDetails.cfm">
-<cfelse>
-   <!-- User does not have permission -->
+<cfif not listFind(session.permissionList, 1)>
+ 
    <cflocation url="contact.cfm">
 </cfif>
 

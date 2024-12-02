@@ -1,155 +1,4 @@
-<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
-    <cflocation url="login.cfm">
-</cfif>
-
-<cfset datasourceName = "dsn_Address_book">
-
-<!--- Initialize individual variables --->
-<cfset int_contact_id = "">      
-<cfset str_first_name = "">    
-<cfset str_last_name = "">       
-<cfset int_contact = "">       
-<cfset str_email = "">
-<cfset str_qualification = ""> 
-<cfset str_country = "">     
-<cfset str_city = "">         
-<cfset str_state = "">      
-<cfset str_address = "">        
-<cfset int_pincode = "">       
-<cfset str_gender = "">         
-<cfset str_languages = "">      
-
-<cfset strErrorMsg = ''>       
-<cfset strSuccessMsg = ''>     
-
-
-
-<!--- Fetch strQualifications and countries --->
-<cfset getstrQualifications()>
-<cfset getCountries()>
-
-<cfif structKeyExists(form, "btn-submit")>
-    <!--- Collect form variables --->
-    <cfset str_first_name = trim(form.str_first_name)>
-    <cfset str_last_name = trim(form.str_last_name)>
-    <cfset int_contact = trim(form.int_contact)>
-    <cfset str_email = trim(form.str_email)>
-    <cfset str_qualification = structKeyExists(form, "str_qualification") ? form.str_qualification : "">
-    <cfset str_country = structKeyExists(form, "str_country") ? form.str_country : "">
-    <cfset str_city = trim(form.str_city)>
-    <cfset str_state = trim(form.str_state)>
-    <cfset str_address = trim(form.str_address)>
-    <cfset int_pincode = trim(form.int_pincode)>
-    <cfset str_gender = structKeyExists(form, "str_gender") ? form.str_gender : "">
-    <cfset str_languages = structKeyExists(form,"str_languages")? form.str_languages:"">
-    
-    
-
-    <!--- Validate the form --->
-    <cfset strErrorMsg = validateForm()>
-    
-    <cfif NOT len(strErrorMsg)>
-        <cfset saveintContact()>
-        <cfset strSuccessMsg = "Contact added successfully!">
-    <cfelse>
-        <cfset strSuccessMsg = strErrorMsg>
-    </cfif>
-</cfif>
-
-<cffunction name="getstrQualifications" access="public" returnType="void">
-    <cfquery name="qrygetstrQualifications" datasource="#datasourceName#">
-        SELECT str_qualification_name FROM qualifications
-    </cfquery>
-</cffunction>
-
-<cffunction name="getCountries" access="public" returnType="void">
-    <cfquery name="qrygetCountries" datasource="#datasourceName#">
-        SELECT str_country_name FROM countries
-    </cfquery>
-</cffunction>
-
-<cffunction name="validateForm" access="public" returnType="string">
-    <cfset var strErrorMsg = "">
-    
-    <cfif str_first_name EQ "">
-        <cfset strErrorMsg &= 'Please enter your first name.<br>'>
-    </cfif>
-    <cfif str_last_name EQ "">
-        <cfset strErrorMsg &= 'Please enter your last name.<br>'>
-    </cfif>
-    <cfif int_contact EQ "">
-        <cfset strErrorMsg &= 'Please enter your Contact number.<br>'>
-    </cfif>
-    <cfif str_email EQ "">
-        <cfset strErrorMsg &= 'Please enter your Email .<br>'>
-    </cfif>
-    <cfif (str_qualification EQ "")>
-        <cfset strErrorMsg &= 'Please select a Qualification.<br>'>
-    </cfif>
-    <cfif (str_country EQ "")>
-        <cfset strErrorMsg &= 'Please select a Country.<br>'>
-    </cfif>
-    <cfif str_city EQ "">
-        <cfset strErrorMsg &= 'Please enter your City.<br>'>
-    </cfif>
-    <cfif str_state EQ "">
-        <cfset strErrorMsg &= 'Please enter your State.<br>'>
-    </cfif>
-    <cfif str_address EQ "">
-        <cfset strErrorMsg &= 'Please enter your Address.<br>'>
-    </cfif>
-    <cfif int_pincode EQ "">
-        <cfset strErrorMsg &= 'Please enter your Pincode.<br>'>
-    </cfif>
-    <cfif (str_gender EQ "")>
-        <cfset strErrorMsg &= 'Please select a Gender.<br>'>
-    </cfif>
-    <cfif (str_languages EQ "")>
-        <cfset strErrorMsg &= 'Please select at least one language.<br>'>
-    </cfif>
-    
-    <cfreturn strErrorMsg>
-</cffunction>
-
-<cffunction name="saveintContact" access="public" returnType="string">
-    <!--- Local variable for the response --->
-    <cfset var responseMessage = "">
-    
-    <!--- Check for duplicate contact number --->
-    <cfquery name="checkDuplicate" datasource="#datasourceName#">
-        SELECT int_contact 
-        FROM contacts
-        WHERE int_contact = <cfqueryparam value="#int_contact#" cfsqltype="cf_sql_varchar">
-    </cfquery>
-    
-    <cfif checkDuplicate.recordcount EQ 0>
-     
-        <!--- Proceed with insert if no duplicate --->
-        <cfquery datasource="#datasourceName#">
-            INSERT INTO contacts (
-                str_first_name, str_last_name, int_contact, str_email, 
-                str_qualification, str_country, str_city, str_state, 
-                str_address, int_pincode, str_gender, str_languages
-            ) VALUES (
-                <cfqueryparam value="#str_first_name#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_last_name#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#int_contact#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_email#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_qualification#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_country#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_city#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_state#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_address#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#int_pincode#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_gender#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#str_languages#" cfsqltype="cf_sql_varchar">
-            )
-        </cfquery>
-    </cfif>
-
-</cffunction>
-
-
+<cfinclude template="addContact.cfm">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -239,50 +88,35 @@
                     <select id="str_qualification" name="str_qualification" class="form-select">
                         <option value="">Select Qualification</option>
                         <!-- Loop through qualifications from the database -->
-                        <cfquery name="qrygetQualifications" datasource="#datasourcename#">
-                            SELECT str_qualification_name
-                            FROM qualifications
-                            ORDER BY str_qualification_name
-                        </cfquery>
-                        <cfloop query="qrygetQualifications">
-                            <option value="#qrygetQualifications.str_qualification_name#"
-                                <cfif structKeyExists(form, "str_qualification") AND form.str_qualification EQ qrygetQualifications.str_qualification_name>
+                        
+                        <cfloop query="qrygetstrQualifications">
+                            <option value="#qrygetstrQualifications.str_qualification_name#"
+                                <cfif structKeyExists(form, "str_qualification") AND form.str_qualification EQ qrygetstrQualifications.str_qualification_name>
                                     selected="selected"
                                 </cfif>>
-                                #qrygetQualifications.str_qualification_name#
+                                #qrygetstrQualifications.str_qualification_name#
                             </option>
                         </cfloop>
                     </select>
                 </div>
             </div>
-            
-            
-
-<!-- Country Dropdown -->
-<div class="mb-3 row">
-    <label for="str_country" class="col-sm-2 col-form-label">Country</label>
-    <div class="col-sm-10">
-        <select id="str_country" name="str_country" class="form-select">
-            <option value="">Select Country</option>
-            <!-- Loop through countries from the database -->
-            <cfquery name="qrygetCountries" datasource="#datasourcename#">
-                SELECT str_country_name
-                FROM countries
-                ORDER BY str_country_name
-            </cfquery>
-            <cfloop query="qrygetCountries">
-                <option value="#qrygetCountries.str_country_name#"
-                    <cfif structKeyExists(form, "str_country") AND form.str_country EQ qrygetCountries.str_country_name>
-                        selected="selected"
-                    </cfif>>
-                    #qrygetCountries.str_country_name#
-                </option>
-            </cfloop>
-        </select>
-    </div>
-</div>
-
-
+            <div class="mb-3 row">
+                <label for="str_country" class="col-sm-2 col-form-label">Country</label>
+                <div class="col-sm-10">
+                    <select id="str_country" name="str_country" class="form-select">
+                        <option value="">Select Country</option>
+                       
+                        <cfloop query="qrygetCountries">
+                            <option value="#qrygetCountries.str_country_name#"
+                                <cfif structKeyExists(form, "str_country") AND form.str_country EQ qrygetCountries.str_country_name>
+                                    selected="selected"
+                                </cfif>>
+                                #qrygetCountries.str_country_name#
+                            </option>
+                        </cfloop>
+                    </select>
+                </div>
+            </div>
             <div class="mb-3 row">
                 <label for="str_city" class="col-sm-2 col-form-label">City</label>
                 <div class="col-sm-10">
@@ -347,9 +181,6 @@
                     </div>
                 </div>
             </div>
-            
-            
-            
             <div class="mb-3 row">
         <div class="col-sm-10 offset-sm-2 d-flex justify-content-end">
             <button type="reset" class="btn btn-secondary me-2">Reset</button>

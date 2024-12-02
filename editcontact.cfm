@@ -1,45 +1,4 @@
-
-<!-- Check if the user is logged in -->
-<cfif NOT structKeyExists(session, "userId") OR session.userId EQ "" OR session.userId IS 0>
-    <!-- Redirect to the login page if the session does not have a valid user ID -->
-    <cflocation url="login.cfm">
-</cfif>
-<cfif not listFind(session.permissionList, 2)>
-    <!-- User has permission to delete -->
-    <cflocation url="contact.cfm">
-</cfif>
-
-<cfset  datasource="dsn_address_book">
-<cfif structKeyExists(url, "int_contact_id")>
-    <cfquery name="contact" datasource="#datasource#">
-        SELECT int_contact_id, str_first_name, str_last_name, int_contact, str_email, str_qualification, str_country, str_city, str_state, str_address, int_pincode, str_gender, str_languages
-        FROM contacts 
-        WHERE int_contact_id = #url.int_contact_id#
-    </cfquery>
-</cfif>
-
-<cfif structKeyExists(form, "submit")>
-    <!-- Handle form submission -->
-    <cfquery datasource="#datasource#">
-        UPDATE contacts
-        SET 
-            str_first_name = <cfqueryparam value="#form.str_first_name#" cfsqltype="cf_sql_varchar">,
-            str_last_name = <cfqueryparam value="#form.str_last_name#" cfsqltype="cf_sql_varchar">,
-            int_contact = <cfqueryparam value="#form.int_contact#" cfsqltype="cf_sql_varchar">,
-            str_email = <cfqueryparam value="#form.str_email#" cfsqltype="cf_sql_varchar">,
-            str_qualification = <cfqueryparam value="#form.str_qualification#" cfsqltype="cf_sql_varchar">,
-            str_country = <cfqueryparam value="#form.str_country#" cfsqltype="cf_sql_varchar">,
-            str_city = <cfqueryparam value="#form.str_city#" cfsqltype="cf_sql_varchar">,
-            str_state = <cfqueryparam value="#form.str_state#" cfsqltype="cf_sql_varchar">,
-            str_address = <cfqueryparam value="#form.str_address#" cfsqltype="cf_sql_varchar">,
-            int_pincode = <cfqueryparam value="#form.int_pincode#" cfsqltype="cf_sql_varchar">,
-            str_gender = <cfqueryparam value="#form.str_gender#" cfsqltype="cf_sql_varchar">,
-            str_languages = <cfqueryparam value="#form.str_languages#" cfsqltype="cf_sql_varchar">
-        WHERE int_contact_id = #url.int_contact_id#
-    </cfquery>
-     <cflocation url="contact.cfm">
-</cfif>
-
+<cfinclude template="edit.cfm">
 <!DOCTYPE html>
 <html lang="en">
 <head>

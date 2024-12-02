@@ -85,7 +85,7 @@
         <!-- User login query with role validation -->
     <cfquery name="qryUser" datasource="#datasource#">
         SELECT 
-            u.str_first_name, u.str_user_name, u.str_email,u.int_user_id, r.str_user_role,u.str_phone
+            u.str_first_name, u.str_user_name, u.str_email,u.int_user_id, r.str_user_role,u.str_phone,u.cbr_status
         FROM 
             tbl_users u
         JOIN 
@@ -105,9 +105,11 @@
                 int_user_id = qryUser.int_user_id,
                 str_email = qryUser.str_email,
                 str_user_role = qryUser.str_user_role,
-                str_phone = qryUser.str_phone
+                str_phone = qryUser.str_phone,
+                cbr_status= qryUser.cbr_status
             }>
             <cfset session.int_user_id = qryUser.int_user_id>
+            
             <cfset session.str_user_name = qryUser.str_user_name> 
             <cflocation url="user.cfm"> <!-- Redirect to user dashboard -->
         <cfelse>

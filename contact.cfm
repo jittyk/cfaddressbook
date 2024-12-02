@@ -1,40 +1,4 @@
-<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
-    <cflocation url="login.cfm">
-</cfif>
-
-
-<cfset datasource = "dsn_address_book">
-<!-- Parameters for Pagination -->
-<cfparam name="page" default="1">
-<cfset perPage = 5>
-<cfset startRow = (page - 1) * perPage + 1>
-<!-- Query to fetch total count -->
-<cfquery name="totalCount" datasource="#datasource#">
-    SELECT COUNT(*) AS totalContacts
-    FROM contacts
-</cfquery>
-<!-- Query to fetch paginated contacts -->
-<cfquery name="getContacts" datasource="#datasource#">
-    SELECT int_contact_id, str_first_name, str_last_name, int_contact, str_email, str_qualification, str_country, str_city, str_state, str_address, int_pincode, str_gender, str_languages
-    FROM contacts
-    ORDER BY str_first_name ASC
-    LIMIT #startRow - 1#, #perPage#
-</cfquery>
-<!-- Calculate Pagination Values -->
-<cfset totalPages = ceiling(totalCount.totalContacts / perPage)>
-<cfquery name="checkPermission" datasource="#datasource#">
-    SELECT int_permission_id
-    FROM tbl_user_permissions
-    WHERE int_user_id = <cfqueryparam value="#session.int_user_id#" cfsqltype="cf_sql_integer">
-</cfquery>
-
-<cfif checkPermission.recordCount NEQ 0>
-    <!-- Store the permission list in session -->
-    <cfset session.permissionList = ValueList(checkPermission.int_permission_id)>
-<cfelse>
-    <!-- If no permissions found, set an empty value -->
-    <cfset session.permissionList = "">
-</cfif>
+<cfinclude template="contactLogic.cfm">
 <!DOCTYPE html>
 <html lang="en">
     <head>

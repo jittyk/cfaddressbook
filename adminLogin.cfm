@@ -1,3 +1,4 @@
+<cfinclude template="adminLoginLogic.cfm">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,41 +10,7 @@
     <link rel="stylesheet" href="styles/adminlogin.css">
 </head>
 <body>
-    <!-- Admin Login Validation -->
-    <cfif structKeyExists(form, "submit")>
-        <cfset datasource="dsn_address_book">
-        <!--- Query to authenticate admin login --->
-        <cfquery name="qryAdmin" datasource="#datasource#">
-            SELECT 
-                u.int_user_id AS str_user_id, 
-                u.str_user_name AS str_user_name,
-                u.str_email, 
-                u.str_password
-            FROM tbl_users u
-            JOIN tbl_user_roles r 
-                ON u.int_user_role_id = r.int_id
-            WHERE 
-                u.str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
-                AND u.str_password = <cfqueryparam value="#form.password#" cfsqltype="cf_sql_varchar">
-                AND u.cbr_status = 'A'
-                AND r.str_user_role = 'admin'
-        </cfquery>
-    
-        <!--- Check if a record is found in the query --->
-        <cfif qryAdmin.recordCount>
-            <!--- Assign session variables --->
-            <cfset session.int_admin_id = qryAdmin.str_user_id>
-            <cfset session.str_admin_user_name = qryAdmin.str_user_name>
-    
-            <!--- Redirect to admin page if login is successful --->
-            <cflocation url="admin.cfm">
-        <cfelse>
-            <!--- Set an error message in session and redirect back to login page if login fails --->
-            <cfset session.str_login_error = "Invalid login credentials or you do not have admin access.">
-            <cflocation url="adminLogin.cfm">
-        </cfif>
-    </cfif>
-    
+   
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">
