@@ -1,40 +1,4 @@
-<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
-    <cflocation url="login.cfm">
-</cfif>
-
-
-<cfset datasource = "dsn_address_book">
-<!-- Parameters for Pagination -->
-<cfparam name="page" default="1">
-<cfset perPage = 5>
-<cfset startRow = (page - 1) * perPage + 1>
-<!-- Query to fetch total count -->
-<cfquery name="totalCount" datasource="#datasource#">
-    SELECT COUNT(*) AS totalContacts
-    FROM contacts
-</cfquery>
-<!-- Query to fetch paginated contacts -->
-<cfquery name="getContacts" datasource="#datasource#">
-    SELECT int_contact_id, str_first_name, str_last_name, int_contact, str_email, str_qualification, str_country, str_city, str_state, str_address, int_pincode, str_gender, str_languages
-    FROM contacts
-    ORDER BY str_first_name ASC
-    LIMIT #startRow - 1#, #perPage#
-</cfquery>
-<!-- Calculate Pagination Values -->
-<cfset totalPages = ceiling(totalCount.totalContacts / perPage)>
-<cfquery name="checkPermission" datasource="#datasource#">
-    SELECT int_permission_id
-    FROM tbl_user_permissions
-    WHERE int_user_id = <cfqueryparam value="#session.int_user_id#" cfsqltype="cf_sql_integer">
-</cfquery>
-
-<cfif checkPermission.recordCount NEQ 0>
-    <!-- Store the permission list in session -->
-    <cfset session.permissionList = ValueList(checkPermission.int_permission_id)>
-<cfelse>
-    <!-- If no permissions found, set an empty value -->
-    <cfset session.permissionList = "">
-</cfif>
+<cfinclude template="contactAction.cfm">
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -42,18 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Contacts with Pagination</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-            .contact-details {
-            display: none;
-            }
-            .contact-name {
-            cursor: pointer;
-            color: #5f0606;
-            }
-            .contact-name:hover {
-            color: #220303;
-            }
-        </style>
+        <link rel="stylesheet" href="styles\contact.css"
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
@@ -114,19 +67,22 @@
                                 </cfif>
                                 
                             </td>
-                            <!-- Edit and Delete Links -->
                             <td>
-                               
-
+                                <!-- Edit Button -->
                                 <cfif listFind(session.permissionList, 2)>
-                                    <a href="editcontact.cfm?int_contact_id=#int_contact_id#" class="btn btn-warning btn-sm">Edit</a>
+                                    <form action="addContact.cfm" method="GET" style="display:inline;">
+                                        <input type="hidden" name="int_contact_id" value="#int_contact_id#">
+                                        <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+                                    </form>
                                 </cfif>
+                                
+                                <!-- Delete Button -->
                                 <cfif listFind(session.permissionList, 3)>
-                                    <a href="deleteContact.cfm?int_contact_id=#int_contact_id#" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this contact?')">Delete</a>
+                                    <form action="deleteContact.cfm" method="POST" style="display:inline;">
+                                        <input type="hidden" name="int_contact_id" value="#int_contact_id#">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this contact?')">Delete</button>
+                                    </form>
                                 </cfif>
-                               
-                                
-                                
                             </td>
                         </tr>
                     </cfoutput>

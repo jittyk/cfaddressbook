@@ -1,3 +1,4 @@
+<cfinclude template="loginAction.cfm">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,117 +7,12 @@
     <title>User Login - Address Book</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylsheet" href="styles.css">
-    <style>
-        body {
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f8f9fa;
-        }
-        .log-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        .login-container {
-            text-align: center;
-            display: inline-block;
-            padding: 20px;
-            margin: 60px;
-            border: 1px solid #000000;
-            border-radius: 8px;
-            background: linear-gradient(to right, #0623a1, #53a9f5);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            color: white;
-            width: 300px;
-            max-width: 400px;
-        }
-        input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .danger {
-            color: red;
-            display: block; /* Make sure it's visible */
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-        .links {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .links a {
-            color: #f1f1f1;
-            text-decoration: none;
-            font-size: 0.9em;
-        }
-        .links a:hover {
-            text-decoration: underline;
-        }
-        .navbar {
-            margin-bottom: 20px; /* Adds space below navbar */
-            
-            }
-            .footer {
-            margin-top: auto; /* Pushes footer to the bottom */
-            
-            }
-    </style>
+    <link rel="stylesheet" href="styles/login.css">
+   
 </head>
 <body>
     <!-- User Login Validation (Non-Admin) -->
-    <cfif structKeyExists(form, "submit")>
-        <cfset datasource="dsn_address_book">
-        <!-- User login query with role validation -->
-    <cfquery name="qryUser" datasource="#datasource#">
-        SELECT 
-            u.str_first_name, u.str_user_name, u.str_email,u.int_user_id, r.str_user_role,u.str_phone
-        FROM 
-            tbl_users u
-        JOIN 
-            tbl_user_roles r 
-        ON 
-            u.int_user_role_id = r.int_id
-        WHERE 
-            u.str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
-            AND u.str_password = <cfqueryparam value="#form.password#" cfsqltype="cf_sql_varchar">
-            AND u.cbr_status = 'A';
-    </cfquery>
-        
-        <cfif qryUser.recordCount>
-            <cfset session.user = {
-                str_user_name = qryUser.str_user_name,
-                str_first_name= qryUser.str_first_name,
-                int_user_id = qryUser.int_user_id,
-                str_email = qryUser.str_email,
-                str_user_role = qryUser.str_user_role,
-                str_phone = qryUser.str_phone
-            }>
-            <cfset session.int_user_id = qryUser.int_user_id>
-            <cfset session.str_user_name = qryUser.str_user_name> 
-            <cflocation url="user.cfm"> <!-- Redirect to user dashboard -->
-        <cfelse>
-            <cfset session.loginError = "Invalid login credentials or you do not have user access.">
-            <cflocation url="login.cfm"> <!-- Redirect back to login page -->
-        </cfif>
-    </cfif>
     
-
     
     <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
         <div class="container-fluid">

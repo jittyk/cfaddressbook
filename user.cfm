@@ -13,7 +13,7 @@
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-      
+      <link rel="stylesheet" href="styles\user.css">
    </head>
    <body class="column min-vh-100">
       <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
@@ -58,7 +58,7 @@
                <p>Connections and Contacts is a personalized and comprehensive collection of important people in my life. This address book includes close friends and family members, professional colleagues and collaborators, acquaintances and neighbors, social connections and community members, business associates and clients, and mentors and role models. It serves as a quick reference guide for keeping track of contact information, important dates, personal notes and reminders, social media profiles, and relationships between contacts. By maintaining this address book, I aim to stay organized, nurture my relationships, and foster meaningful connections with the people who matter most in my life. It's a valuable tool for staying in touch, building stronger relationships, and celebrating important milestones and occasions.</p>
             </div>
             <div class="col-12 col-md-7 text-center">
-               <a href="addWithFunction.cfm"><img src="images\addcontact.jpg" alt="Add Contact" class="img-fluid"
+               <a href="addContact.cfm"><img src="images\addcontact.jpg" alt="Add Contact" class="img-fluid"
                   title="Add Contact - Click to add a new contact"></a>
                <p>Add Contact</p>
                <p>Tap the Add Contact icon to add a new contact to your address book. This feature allows you to store essential information about people you know, including their full name, phone numbers (mobile, home, or work), email addresses (personal or professional), home or work addresses, birthdays, and any additional notes.</p>

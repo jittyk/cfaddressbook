@@ -1,3 +1,4 @@
+<cfinclude template="signUpAction.cfm">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,60 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f8f9fa;
-        }
-        .signup-container {
-            text-align: center;
-            display: inline-block;
-            padding: 20px;
-            margin: 60px;
-            border: 1px solid #000000;
-            border-radius: 8px;
-            background: linear-gradient(to right, #0623a1, #53a9f5);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            color: white;
-        }
-        .log-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        .signup-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .form-control {
-            margin-bottom: 15px;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .btn-submit:hover {
-            background-color: #45a049;
-        }
-        .message {
-            margin-top: 15px;
-        }
-        .danger {
-            color: red;
-        }
-        .success {
-            color: rgb(255, 255, 255);
-        }
-    </style>
+    <link href="styles\signUp.css" rel="stylesheet"></linkink>
 </head>
 <body>
 
@@ -91,40 +39,6 @@
 <div class="log-container">
     <div class="signup-container">
         <h2>Sign Up</h2>
-        
-        <!-- Place messages here inside the container -->
-        <cfif structKeyExists(form, "submit")>
-            <!--- Check if email already exists ---> 
-            <cfquery name="checkEmail" datasource="dsn_address_book">
-                SELECT COUNT(*) AS emailCount
-                FROM tbl_users
-                WHERE str_email = <cfqueryparam value="#form.email#" cfsqltype="cf_sql_varchar">
-            </cfquery>
-
-            <cfif checkEmail.emailCount GT 0>
-                <!--- Email already exists ---> 
-                <div class="message danger">This email is already registered. Please try another one.</div>
-            <cfelse>
-                <!--- Insert new user with role_id = 2 (user) and status = 'P' (pending) ---> 
-                <cfquery name="insertUser" datasource="dsn_address_book">
-                    INSERT INTO tbl_users (str_first_name, str_phone, str_user_name, str_email, str_password, int_user_role_id, cbr_status)
-                    VALUES (
-                        <cfqueryparam value="#name#" cfsqltype="cf_sql_varchar">,
-                        <cfqueryparam value="#phone#" cfsqltype="cf_sql_varchar">,
-                        <cfqueryparam value="#username#" cfsqltype="cf_sql_varchar">,
-                        <cfqueryparam value="#email#" cfsqltype="cf_sql_varchar">,
-                        <cfqueryparam value="#password#" cfsqltype="cf_sql_varchar">,
-                        2,
-                        'P' 
-                    )
-                </cfquery>
-
-                <!--- Show success message --->
-                <div class="message success">Your account has been created successfully. Please wait for approval.</div>
-            </cfif>
-        </cfif>
-        
-        <!-- Sign up form -->
         <form action="signup.cfm" method="post">
             <input type="text" name="name" class="form-control" placeholder="Name" required>
             <input type="text" name="phone" class="form-control" placeholder="Phone" required pattern="\d{10}" title="Please enter a valid 10-digit phone number">
