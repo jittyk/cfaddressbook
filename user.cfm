@@ -25,9 +25,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                <ul class="navbar-nav ms-auto align-items-center">
-                  <li class="nav-item"><a class="nav-link" href="#">Family</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#">Friends</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#">Colleagues</a></li>
+                  <li class="nav-item"><a class="nav-link" href="cfCalendar/index.cfm">Calendar</a></li>
                   <li class="nav-item">
                      <form class="d-inline-block" method="get" action="user.cfm">
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchTerm">

@@ -220,7 +220,7 @@
 
 <!--- Main processing logic --->
 <cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
-    <cflocation url="adminLogin.cfm">
+    <cflocation url="login.cfm">
 </cfif>
 
 <!--- Initialize the form when the page loads --->
