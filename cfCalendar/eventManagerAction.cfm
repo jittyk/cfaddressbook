@@ -4,59 +4,67 @@
     
     <cfset var selectedDate = now()>
 
-    <!-- If date parameter exists in the form, parse it; otherwise, use current date -->
-    <cfif len(arguments.formDate)>
+    <!-- If date parameter exists, parse it; otherwise, use the current date -->
+    <cfif len(trim(arguments.formDate))>
         <cfset selectedDate = parseDateTime(arguments.formDate)>
     </cfif>
-    
+
     <cfreturn selectedDate>
 </cffunction>
+
+<!-- Call the function and assign the result -->
+  
 
 <!-- Define function to query events based on selected date -->
 <cffunction name="getEvents" access="public" returntype="query" output="false">
     <cfargument name="selectedDate" type="date" required="true">
+    <cfargument name="datasource" type="string" required="true">
+
     <cfset var eventQuery = "">
-    <cfset var eventId = ""> <!-- Initialize eventId variable -->
+    <cfset var eventId = "">
 
     <!-- Query to retrieve events for the selected date -->
-    <cfquery name="eventQuery" datasource="#variables.datasource#">
+    <cfquery name="eventQuery" datasource="#arguments.datasource#">
         SELECT 
             int_event_id,
             str_event_title,
             str_description,
             dt_event_date,
             str_reminder_email,
-            dt_reminder_time,
             str_priority 
         FROM tbl_events
         WHERE dt_event_date LIKE <cfqueryparam value="#dateFormat(arguments.selectedDate, 'yyyy-mm-dd')#%" cfsqltype="cf_sql_varchar">
     </cfquery>
 
-    <!-- Check if the query returns any rows -->
+    <!-- If the query returns rows, get the first event ID -->
     <cfif eventQuery.recordCount gt 0>
-        <!-- Access the first row's int_event_id -->
         <cfset eventId = eventQuery.int_event_id[1]>
     </cfif>
 
-    <!-- If you want to use eventQuery elsewhere -->
     <cfreturn eventQuery>
 </cffunction>
 
+
 <!-- Control Block -->
+<!-- Set the data source -->
 <cfset variables.datasource = "dsn_address_book">
 
-<!-- Get the selected date from the form (hidden field) -->
-<cfset selectedDate = getSelectedDate(form.date)>
+<!-- Check if form.date exists -->
+<cfif structKeyExists(form, "date")>
+    <cfset selectedDate = getSelectedDate(form.date)>
+<cfelse>
+    <!-- Default to current date if form.date is not set -->
+    <cfset selectedDate = now()>
+</cfif>
 
-<!-- Query to retrieve events for the selected date -->
-<cfset eventQuery = getEvents(selectedDate)>
+<!-- Query events using the selected date -->
+<cfset eventQuery = getEvents(selectedDate, variables.datasource)>
 
 <!-- Set session variable for the event ID if events are found -->
 <cfif eventQuery.recordCount>
-    <!-- Loop through query results if there are multiple events -->
+    <!-- Loop through query results -->
     <cfloop query="eventQuery">
         <cfset session.int_event_id = eventQuery.int_event_id>
-        <!-- You can set additional session variables if needed for each event -->
     </cfloop>
 </cfif>
 

@@ -37,8 +37,25 @@
 <cfset filledCells = dayOfWeek + daysInMonth - 1>
 <cfset emptyCells = totalCells - filledCells>
 
-<!-- Initialize an array to store calendar data -->
+<!-- Query the events table for the selected month and year -->
+<cfquery name="eventQuery" datasource="#variables.datasource#">
+    SELECT 
+    dt_event_date, 
+    str_description
+    FROM tbl_events
+    WHERE YEAR(dt_event_date) = #selectedYear# 
+      AND MONTH(dt_event_date) = #selectedMonth#
+</cfquery>
+
+<!-- Create an array to store event dates -->
+<cfset eventDates = []>
 <cfset datesData = []>
+
+<cfloop query="eventQuery">
+    <!-- Convert LocalDateTime to string and format as 'yyyy-mm-dd' -->
+    <cfset formattedDate = dateFormat(eventQuery.dt_event_date.toString(), 'yyyy-mm-dd')>
+    <cfset arrayAppend(eventDates, formattedDate)>
+</cfloop>
 
 <!-- Loop through each day of the month -->
 <cfloop index="day" from="1" to="#daysInMonth#">
@@ -49,6 +66,7 @@
         AND selectedYear eq year(currentDate)
     )>
     <cfset isHoliday = false>
+    <cfset hasEvent = false> 
     
     <!-- Check if the current day is a holiday from the database -->
     <cfif arrayContains(holidays, selectedDate)>
@@ -64,12 +82,18 @@
     <cfif dayOfWeek(selectedDate) eq 7 AND int((day - 1) / 7) eq 1>
         <cfset isHoliday = true>
     </cfif>
-    
-    <!-- Append the day's data to the datesData array -->
+
+    <!-- Check if there is an event for this date -->
+    <cfif arrayContains(eventDates, selectedDate)>
+        <cfset hasEvent = true>
+    </cfif>
+
+    <!-- Append the day's data to the datesData array, including the hasEvent flag -->
     <cfset arrayAppend(datesData, { 
         "day" = day, 
         "isToday" = isToday, 
         "isHoliday" = isHoliday, 
+        "hasEvent" = hasEvent, 
         "selectedDate" = selectedDate 
     })>
 </cfloop>

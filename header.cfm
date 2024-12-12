@@ -15,7 +15,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
             <div class="container-fluid">
-               <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
+               <a class="navbar-brand" href="../user.cfm"><b>Address Book</b></a>
                <a class="nav-link text-white">Hello <cfoutput>#session.str_user_name#</cfoutput></a>
                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                   <span class="navbar-toggler-icon"></span>
@@ -23,6 +23,8 @@
                <div class="collapse navbar-collapse" id="navbarNav">
                   <ul class="navbar-nav ms-auto align-items-center">
                      <li class="nav-item"><a class="nav-link" href="../cfCalendar/index.cfm">Calendar</a></li>
+                     <li class="nav-item"><a class="nav-link" href="../cfCalendar/eventDisplay.cfm">Events</a></li>
+                     
                      <li class="nav-item">
                         <form class="d-inline-block" method="get" action="user.cfm">
                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchTerm">

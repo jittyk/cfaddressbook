@@ -1,145 +1,188 @@
-<!--- Function to initialize form variables --->
+
 <cffunction name="initializeFormVariables" access="public" returntype="void" output="false">
-    <cfset str_event_title = "">
-    <cfset str_description = "">
-    <cfset dt_event_date = "">
-    <cfset str_priority = "">
-    <cfset str_reminder_email = "">
-    <cfset dt_reminder_time = "">
+    <cfset variables.datasource = "dsn_address_book">
+    <cfset variables.str_event_title = "">
+    <cfset variables.str_description = "">
+    <cfset variables.dt_event_date = "">
+    <cfset variables.dateString="">
+    <cfset variables.str_priority = "">
+    <cfset variables.str_reminder_email = "">
+    <cfset variables.strErrorMsg = "">
+    <cfset variables.strSuccessMsg = "">
+    
+
     <!--- Get eventId from form if exists --->
     <cfset eventId = structKeyExists(form, "eventId") ? form.eventId : "" >
-</cffunction>
-
-<!--- Function to fetch event data based on eventId --->
-<cffunction name="fetchFormData" access="public" returntype="void" output="false">
-    <cfif len(form.eventId)>
-        <!--- Fetch event details from the database based on eventId --->
-        <cfquery name="qryGetEvents" datasource="dsn_address_book">
+    
+    <cfset variables.int_event_id = structKeyExists(form, "eventId") ? form.eventId : 0> 
+    
+  </cffunction>
+ <cffunction name="setFormData" access="public" returntype="void">
+    <cfif len(variables.int_event_id) NEQ 0>
+        <cfquery name="variables.qryGetEvents" datasource="dsn_address_book">
             SELECT 
                 int_event_id,
                 str_event_title,
                 str_description,
                 dt_event_date,
                 str_priority,
-                str_reminder_email,
-                dt_reminder_time
+                str_reminder_email
             FROM tbl_events
-            WHERE int_event_id = <cfqueryparam value="#form.eventId#" cfsqltype="cf_sql_integer">
+            WHERE int_event_id = <cfqueryparam value="#variables.int_event_id#" cfsqltype="cf_sql_integer">
         </cfquery>
+
         
-        <!--- If the event exists, populate the form variables --->
-        <cfif qryGetEvents.recordCount GT 0>
-            <cfset str_event_title = qryGetEvents.str_event_title>
-            <cfset str_description = qryGetEvents.str_description>
-            <cfset dt_event_date = qryGetEvents.dt_event_date>
-            <cfset str_priority = qryGetEvents.str_priority>
-            <cfset str_reminder_email = qryGetEvents.str_reminder_email>
-            <cfset dt_reminder_time = qryGetEvents.dt_reminder_time>
-        </cfif>
+
+        <!--- Set event data to variables --->
+        <cfset variables.str_event_title = variables.qryGetEvents.str_event_title>
+        <cfset variables.str_description = variables.qryGetEvents.str_description>
+        <cfset variables.dt_event_date = variables.qryGetEvents.dt_event_date>
+        <cfset variables.dateString = ListFirst(variables.qryGetEvents.dt_event_date, "T")>
+        <cfset variables.str_priority = variables.qryGetEvents.str_priority>
+        <cfset variables.str_reminder_email = variables.qryGetEvents.str_reminder_email>
     </cfif>
+   
+</cffunction>
+<cffunction name="getFormValues" access="public" returntype="void">
+    
+    <!-- Check if eventId exists, if so, use it, else default to 0 -->
+    
+    <!-- Trim and assign values from form fields -->
+    <cfset variables.str_event_title = trim(form.str_event_title)>
+    <cfset variables.str_description = trim(form.str_description)>
+    
+    <!-- Ensure proper date format for event date -->
+    <cfset variables.dt_event_date = structKeyExists(form, "dt_event_date") ? form.dt_event_date : "">
+    
+    <cfset variables.str_reminder_email = trim(form.str_reminder_email)>
+    
+    <!-- Priority field, default to "low" if not provided -->
+    <cfset variables.str_priority = structKeyExists(form, "str_priority") ? form.str_priority : "low">
+
 </cffunction>
 
-<!--- Function to validate form values --->
-<cffunction name="validateFormValues" access="public" returntype="boolean" output="false">
-    <cfset var isValid = true>
-    <cfset var errorMessage = "">
+<cffunction name="validateFormValues" access="public" returntype="string">
+    <cfset var variables.strErrorMsg = "">
 
     <!--- Validate Event Title --->
-    <cfif form.str_event_title eq "">
-        <cfset isValid = false>
-        <cfset errorMessage &= "Event Title is required.<br>">
+    <cfif NOT len(variables.str_event_title)>
+        <cfset variables.strErrorMsg &= 'Event Title is required.<br>'>
     </cfif>
 
     <!--- Validate Description --->
-    <cfif form.str_description eq "">
-        <cfset isValid = false>
-        <cfset errorMessage &= "Description is required.<br>">
+    <cfif NOT len(variables.str_description)>
+        <cfset variables.strErrorMsg &= 'Description is required.<br>'>
     </cfif>
 
     <!--- Validate Event Date --->
-    <cfif form.dt_event_date eq "" OR NOT isDate(form.dt_event_date)>
-        <cfset isValid = false>
-        <cfset errorMessage &= "Valid Event Date is required.<br>">
+    <cfif NOT len(variables.dt_event_date) OR variables.dt_event_date EQ "">
+        <cfset variables.strErrorMsg &= 'Valid Event Date is required.<br>'>
     </cfif>
+    
+    <!--- Validate Reminder Email ---> 
+<cfif NOT len(variables.str_reminder_email)>
+    <cfset variables.strErrorMsg &= 'Reminder Email is not valid.<br>'>
+</cfif>
 
-    <!--- Validate Reminder Email --->
-    <cfif form.str_reminder_email neq "" AND NOT isValidEmail(form.str_reminder_email)>
-        <cfset isValid = false>
-        <cfset errorMessage &= "Reminder Email is not valid.<br>">
-    </cfif>
-
-    <!--- Validate Reminder Time --->
-    <cfif form.dt_reminder_time neq "" AND NOT isDate(form.dt_reminder_time)>
-        <cfset isValid = false>
-        <cfset errorMessage &= "Reminder Time is not a valid date.<br>">
-    </cfif>
-
+    
     <!--- Validate Priority --->
-    <cfif form.str_priority eq "">
-        <cfset isValid = false>
-        <cfset errorMessage &= "Priority is required.<br>">
+    <cfif NOT len(variables.str_priority)>
+        <cfset variables.strErrorMsg &= 'Priority is required.<br>'>
     </cfif>
 
-    <!--- If invalid, set error message and return false --->
-    <cfif NOT isValid>
-        <cfset session.validationErrorMessage = errorMessage>
-    </cfif>
-
-    <cfreturn isValid>
+    <!-- Return the accumulated error messages -->
+    <cfreturn variables.strErrorMsg>
 </cffunction>
 
+
 <!--- Function to update or insert event data --->
-<cffunction name="updateOrInsertData" access="public" returntype="void" output="false">
-    <!--- If eventId exists, update the event --->
-    <cfif len(form.eventId)>
-        <cfquery name="qryUpdateEvent" datasource="dsn_address_book">
-            UPDATE tbl_events
-            SET 
-                str_event_title = <cfqueryparam value="#form.str_event_title#" cfsqltype="cf_sql_varchar">,
-                str_description = <cfqueryparam value="#form.str_description#" cfsqltype="cf_sql_varchar">,
-                dt_event_date = <cfqueryparam value="#form.dt_event_date#" cfsqltype="cf_sql_timestamp">,
-                str_priority = <cfqueryparam value="#form.str_priority#" cfsqltype="cf_sql_varchar">,
-                str_reminder_email = <cfqueryparam value="#form.str_reminder_email#" cfsqltype="cf_sql_varchar">,
-                dt_reminder_time = <cfqueryparam value="#form.dt_reminder_time#" cfsqltype="cf_sql_timestamp">
-            WHERE int_event_id = <cfqueryparam value="#form.eventId#" cfsqltype="cf_sql_integer">
-        </cfquery>
-        <cfset message = "Event updated successfully.">
-    <cfelse>
-        <!--- Insert a new event if no eventId --->
+<cffunction name="saveOrUpdateEvent" access="public" returntype="string">
+    <cfargument name="int_event_id" type="any" required="false"> <!--- Event ID for updates --->
+    <cfargument name="str_event_title" type="string" required="true">
+    <cfargument name="str_description" type="string" required="true">
+    <cfargument name="dt_event_date" type="string" required="true">
+    <cfargument name="str_priority" type="string" required="true">
+    <cfargument name="str_reminder_email" type="string" required="false">
+
+    <cfset var responseMessage = "">
+    <cfset var isEdit = structKeyExists(variables, "int_event_id") 
+        AND variables.int_event_id NEQ 0 
+        AND variables.int_event_id NEQ "" 
+        AND isNumeric(variables.int_event_id)>
+
+    <cfif NOT isEdit>
+        <!--- Insert New Event --->
         <cfquery datasource="dsn_address_book">
             INSERT INTO tbl_events (
                 str_event_title, 
                 str_description, 
                 dt_event_date, 
                 str_priority, 
-                str_reminder_email, 
-                dt_reminder_time
-            )
-            VALUES (
-                <cfqueryparam value="#form.str_event_title#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#form.str_description#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#form.dt_event_date#" cfsqltype="cf_sql_timestamp">,
-                <cfqueryparam value="#form.str_priority#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#form.str_reminder_email#" cfsqltype="cf_sql_varchar">,
-                <cfqueryparam value="#form.dt_reminder_time#" cfsqltype="cf_sql_timestamp">
+                str_reminder_email 
+            ) VALUES (
+                <cfqueryparam value="#arguments.str_event_title#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#arguments.str_description#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#arguments.dt_event_date#" cfsqltype="cf_sql_timestamp">,
+                <cfqueryparam value="#arguments.str_priority#" cfsqltype="cf_sql_varchar">,
+                <cfqueryparam value="#arguments.str_reminder_email#" cfsqltype="cf_sql_varchar">
             )
         </cfquery>
-        <cfset message = "Event created successfully.">
+        <cfset responseMessage = "Event created successfully!">
+    <cfelse>
+        <!--- Update Existing Event --->
+        <cfquery datasource="dsn_address_book">
+            UPDATE tbl_events
+            SET 
+                str_event_title = <cfqueryparam value="#arguments.str_event_title#" cfsqltype="cf_sql_varchar">,
+                str_description = <cfqueryparam value="#arguments.str_description#" cfsqltype="cf_sql_varchar">,
+                dt_event_date = <cfqueryparam value="#arguments.dt_event_date#" cfsqltype="cf_sql_timestamp">,
+                str_priority = <cfqueryparam value="#arguments.str_priority#" cfsqltype="cf_sql_varchar">,
+                str_reminder_email = <cfqueryparam value="#arguments.str_reminder_email#" cfsqltype="cf_sql_varchar">
+            WHERE int_event_id = <cfqueryparam value="#arguments.int_event_id#" cfsqltype="cf_sql_integer">
+        </cfquery>
+        <cfset responseMessage = "Event updated successfully!">
     </cfif>
+
+    <cfreturn responseMessage>
 </cffunction>
 
-<!--- Main logic block --->
-<cfset initializeFormVariables()>
-<cfif structKeyExists(form, "eventId") AND form.eventId neq "">
-    <cfset fetchFormData()>
-<cfelse>
-    <cfoutput>No eventId found.</cfoutput>
+
+<!--- Main processing logic --->
+
+<!--- Check if the user is logged in ---> 
+<cfif not structKeyExists(session, "int_user_id") or session.int_user_id EQ "" or session.int_user_id IS 0>
+    <cflocation url="../login.cfm">
 </cfif>
 
-<cfif validateFormValues()>
-    <cfset updateOrInsertData()>
-    <!--- Redirect with success message --->
-    <cflocation url="index.cfm?message=#URLEncodedFormat(message)#">
-<cfelse>
-    <cflocation url="formPage.cfm?eventId=#form.eventId#">
+<!--- Initialize form variables when the page loads ---> 
+<cfset initializeFormVariables()>
+<cfset setFormData()>
+
+<cfif structKeyExists(form, "int_event_id")>
+    
+
+    <cfset getFormValues()>
+    
+    <!--- Validate the form values ---> 
+    <cfset variables.strErrorMsg = validateFormValues()>
+    
+    <cfif NOT len(variables.strErrorMsg)>
+        <!--- Save or update event details based on form submission ---> 
+        <cfset variables.strSuccessMsg = saveOrUpdateEvent(
+            variables.int_event_id,
+            variables.str_event_title,
+            variables.str_description,
+            variables.dt_event_date,
+            variables.str_priority,
+            variables.str_reminder_email
+        )>
+        
+        <!--- Re-fetch the event details to ensure updated values are displayed ---> 
+        <cfif len(variables.int_event_id)>
+            <cfset setFormData()>
+        </cfif>   
+    </cfif>
+    
 </cfif>
+
+

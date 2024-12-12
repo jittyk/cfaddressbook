@@ -48,10 +48,11 @@
                                 <input type="hidden" name="date" value="#dateFormat(date.selectedDate, 'yyyy-mm-dd')#">
                                 <button type="submit" 
                                         class="date-cell 
-                                            <cfif date.isToday>today text-primary</cfif>
-                                            <cfif date.isHoliday>holiday text-danger</cfif>
+                                            <cfif date.isToday> text-primary</cfif>
+                                            <cfif date.isHoliday> text-danger</cfif>
+                                             <cfif date.hasEvent> bg-warning </cfif> 
                                         ">
-                                    #date.day#
+                                    #date.day# 
                                 </button>
                             </form>
                         </cfloop>
@@ -60,6 +61,7 @@
                         </cfloop>
                     </div>
                 </div>
+                
             </main>
             </cfoutput>
             

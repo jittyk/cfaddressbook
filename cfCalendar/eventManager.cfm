@@ -13,25 +13,31 @@
 
     <main class="container mt-5">
         <h1>Events on #dateFormat(selectedDate, "dd MMM yyyy")#</h1>
-        
+        <cfif structKeyExists(variables, "message")>
+            <p>#variables.message#</p>
+        </cfif>
         <cfif eventQuery.recordCount GT 0>
-            <!-- List of events -->
+                        
             <ul class="list-group">
                 <cfloop query="eventQuery">
                     <li class="list-group-item">
                         <h5>#str_event_title#</h5>
                         <p>#str_description#</p>
                         <p>Priority:#str_priority#</p><!-- Edit Event Form -->
-                        <form action="addEvent.cfm" method="get">
+                        <form action="addEvent.cfm" method="post">
                             <!-- Hidden field for eventId -->
                             <input type="hidden" name="eventId" value="#eventQuery.int_event_id#">
+                        
+                            <!-- Hidden field for selectedDate -->
+                            <input type="hidden" name="selectedDate" value="#dateFormat(selectedDate, 'yyyy-mm-dd')#">
+                        
                             <button type="submit" class="btn btn-warning">Edit</button>
                         </form>
                         
-                        <cfdump var="#eventQuery.eventId#" abort>
+                        
                         
                         <!-- Delete Event Form -->
-                        <form action="deleteEventAction.cfm" method="get">
+                        <form action="deleteEvent.cfm" method="post">
                             <!-- Hidden field for eventId -->
                             <input type="hidden" name="eventId" value="#int_event_id#">
                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -45,9 +51,13 @@
             <!-- No events found -->
             <p class="text-muted">No events found for this date.</p>
         </cfif>
+        <form action="addEvent.cfm" method="post">
+          
+            <input type="hidden" name="date" value="#dateFormat(selectedDate, 'yyyy-mm-dd')#">
+           
+            <button type="submit" class="btn btn-primary mt-3">Add New Event</button>
+        </form>
         
-        <!-- Option to add a new event -->
-        <a href="addEvent.cfm?date=#dateFormat(selectedDate, 'yyyy-mm-dd')#" class="btn btn-primary mt-3">Add New Event</a>
     </main>
 </cfoutput>
         <cfinclude template="../footer.cfm">
