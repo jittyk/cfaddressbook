@@ -9,39 +9,8 @@
         <link rel="stylesheet" href="styles\contact.css"
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
-                <a class="nav-link text-white">Hello <cfoutput>#session.str_user_name#</cfoutput></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item"><a class="nav-link" href="#">Family</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Friends</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Colleagues</a></li>
-                        <li class="nav-item">
-                            <form class="d-inline-block" method="get" action="user.cfm">
-                                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchTerm">
-                            </form>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link p-0" href="userprofile.cfm">
-                                <img src="images\contacts.jpg" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; margin-left: 6px;">
-                            </a>
-                        </li>
-                        <!-- Logout button with icon -->
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center" href="userlogout.cfm">
-                                <i class="bi bi-box-arrow-right icon-white"></i> 
-                                <span class="ms-2">Logout</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <cfinclude template="../header.cfm">
+        <main class="container">
         <div class="container mt-4">
             <h2 class="mb-4">Contact List</h2>
             <cfparam name="url.toggleId" default="0">
@@ -89,7 +58,7 @@
                 </tbody>
             </table>
             <!-- Pagination -->
-            <nav>
+            
                 <ul class="pagination justify-content-center">
                     <cfif page gt 1>
                         <li class="page-item">
@@ -107,30 +76,9 @@
                         </li>
                     </cfif>
                 </ul>
-            </nav>
+           
         </div>
-        <footer class="mt-auto bg-dark text-white py-3">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <ul class="list-unstyled d-flex flex-column flex-md-row justify-content-center mb-0">
-                            <li class="me-md-3 mb-2 mb-md-0"><a href="#" class="text-white text-decoration-none">Family</a></li>
-                            <li class="me-md-3 mb-2 mb-md-0"><a href="#" class="text-white text-decoration-none">Friends</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Colleagues</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-12 mb-3 d-flex justify-content-center">
-                        <div class="col-10 col-md-6 col-lg-4">
-                            <form method="get" action="index.cfm">
-                                <input type="search" class="form-control" placeholder="Search" name="searchTerm">
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-12 text-center text-md-end">
-                        <a class="navbar-brand" href="user.cfm"><b>Address Book</b></a>
-                    </div>
-                </div>
-            </div>
-        </footer>
+    </main>
+      <cfinclude template="../footer.cfm">
     </body>
 </html>

@@ -1,16 +1,16 @@
 
 <cfset currentDate = now()>
 <cfset selectedMonth = form.month ?: month(currentDate)>
-<cfset selectedYear = form.year ?: year(currentDate)>
+<cfset variables.selectedYear = form.year ?: year(currentDate)>
 
 
 
-<cfset firstDayOfMonth = createDate(selectedYear, selectedMonth, 1)>
+<cfset firstDayOfMonth = createDate(variables.selectedYear, selectedMonth, 1)>
 
 
-createDate(selectedYear, selectedMonth, 1)
+createDate(variables.selectedYear, selectedMonth, 1)
  generates a date representing the first day of the selected month and year. Example:
-  - If `selectedYear = 2023` and `selectedMonth = 12`, `firstDayOfMonth` will be `2023-12-01`.
+  - If `variables.selectedYear = 2023` and `selectedMonth = 12`, `firstDayOfMonth` will be `2023-12-01`.
 
 ---
 

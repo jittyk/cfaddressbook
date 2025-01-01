@@ -16,10 +16,10 @@
         <main class="container">
         <h2>Add New Event</h2>
       <div class="text-center">
-            <cfif len(variables.strErrorMsg)>
-                <div style="color: red;">#variables.strErrorMsg#</div>  
-            <cfelse>
+            <cfif len(variables.strSuccessMsg)>
                 <div style="color: green;">#variables.strSuccessMsg#</div>  
+            <cfelse>
+                <div style="color: red;">#variables.strErrorMsg#</div>  
             </cfif>
         </div>
     
@@ -45,26 +45,19 @@
                 </div>
                 
             </div>
-        
-           
-
-
-                <div class="mb-3 row">
-                    <label for="str_description" class="col-sm-2 col-form-label">Event Description</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" name="str_description" id="str_description" placeholder="Event description.."
-                            <cfif structKeyExists(variables.qryGetEvents, 'str_description') AND variables.qryGetEvents.recordCount GT 0>
-                                value="#variables.qryGetEvents.str_description#"
-                            <cfelse>
-                                value=""  
-                            </cfif>
-                            >
-                    </div>
-                    
+            <div class="mb-3 row">
+                <label for="str_description" class="col-sm-2 col-form-label">Event Description</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="str_description" id="str_description" placeholder="Event description.."
+                        <cfif structKeyExists(variables.qryGetEvents, 'str_description') AND variables.qryGetEvents.recordCount GT 0>
+                            value="#variables.qryGetEvents.str_description#"
+                        <cfelse>
+                            value=""  
+                        </cfif>
+                        >
                 </div>
-            
                 
-        
+            </div>
             <div class="mb-3 row">
                 <label for="dt_event_date" class="col-sm-2 col-form-label">Event Date</label>
                 <div class="col-sm-10">
@@ -92,21 +85,18 @@
                 <cfif structKeyExists(variables, "str_priority")>
                     <cfset selectedPriority = variables.str_priority>
                 <cfelse>
-                    <cfset selectedPriority = "low"> <!-- Default to "low" if not set -->
+                    <cfset selectedPriority = "low"> 
                 </cfif>
                 
                 <div class="col-sm-10">
-                    <select name="str_priority" id="str_priority" >
-                        <!-- Default option -->
+                    <select name="str_priority" id="str_priority"  class="form-control">
                         <option value="" disabled
-                            <cfif NOT structKeyExists(variables, "str_priority") OR NOT len(variables.str_priority)>
-                                selected="selected"
-                            </cfif>
+                        <cfif NOT structKeyExists(variables, "str_priority") OR NOT len(variables.str_priority)>
+                            selected="selected"
+                        </cfif>
                         >
                             Select Priority
                         </option>
-                    
-                        <!-- Populate priority options -->
                         <option value="low" 
                             <cfif structKeyExists(variables, "str_priority") AND variables.str_priority EQ "low">
                                 selected="selected"
@@ -130,8 +120,113 @@
                 
             </div>
         
+            <div class="mb-3 row ">
+                <label for="str_recurring" class="col-sm-2 col-form-label">Recurring Event</label>
+                <div class="col-sm-10 ">
+                    <select name="str_recurring" id="str_recurring" class="form-control">
+                        <option value="" disabled
+                            <cfif NOT structKeyExists(variables, "str_recurring") OR NOT len(variables.str_recurring)>
+                                selected="selected"
+                            </cfif>
+                        >
+                            Select Recurrence
+                        </option>
+                        <option value="none" 
+                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "none">
+                                selected="selected"
+                            </cfif>
+                        >None</option>
+                        <option value="daily" 
+                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "daily">
+                                selected="selected"
+                            </cfif>
+                        >Daily</option>
+                        <option value="weekly" 
+                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "weekly">
+                                selected="selected"
+                            </cfif>
+                        >Weekly</option>
+                        <option value="monthly" 
+                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "monthly">
+                                selected="selected"
+                            </cfif>
+                        >Monthly</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="int_recurring_duration" class="col-sm-2 col-form-label">Duration </label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" name="int_recurring_duration" id="int_recurring_duration" placeholder="Enter duration.." min="1" value="#variables.int_recurring_duration#">
+                </div>
+            </div>
+        
+            <div class="mb-3 row">
+                <label for="variables.str_time_constraint" class="col-sm-2 col-form-label">Event Time</label>
+                <div class="col-sm-10">
+                    <cfif structKeyExists(variables, "str_time_constraint")>
+                        <cfset selectedPriority = variables.str_time_constraint>
+                    <cfelse>
+                        <cfset selectedPriority = ""> 
+                    </cfif>
+                    
+                    <select name="variables.str_time_constraint" id="variables.str_time_constraint" class="form-control">
+                        <option value="" disabled
+                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
+                            selected="selected"
+                        </cfif>
+                        >
+                            Select Time Option
+                        </option>
+
+                        <option value="full_day"
+                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
+                            selected="selected"
+                        </cfif>
+                        >Full Day</option>
+                        <option value="half_day"
+                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
+                            selected="selected"
+                        </cfif>
+                        >Half Day</option>
+                        <option value="custom"
+                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
+                            selected="selected"
+                        </cfif>
+                        >Custom</option>
+                    </select>
+                </div>
+            </div>
+            <cfif showCustomTimeFields>
+                <div class="mb-3 row" id="customTimeFields">
+                    <label for="start_time" class="col-sm-2 col-form-label">Start Time</label>
+                    <div class="col-sm-10">
+                        <input type="time" class="form-control" name="start_time" id="start_time" value="#form.start_time#">
+                    </div>
+                </div>
+                <div class="mb-3 row" id="customTimeFields">
+                    <label for="end_time" class="col-sm-2 col-form-label">End Time</label>
+                    <div class="col-sm-10">
+                        <input type="time" class="form-control" name="end_time" id="end_time" value="#form.end_time#">
+                    </div>
+                </div>
+            </cfif>
+            <div class="mb-3 row" id="customTimeFields" style="display:none;">
+                <label for="start_time" class="col-sm-2 col-form-label">Start Time</label>
+                <div class="col-sm-10">
+                    <input type="time" class="form-control" name="start_time" id="start_time">
+                </div>
+            </div>
+            <div class="mb-3 row" id="customTimeFields" style="display:none;">
+                <label for="end_time" class="col-sm-2 col-form-label">End Time</label>
+                <div class="col-sm-10">
+                    <input type="time" class="form-control" name="end_time" id="end_time">
+                </div>
+            </div>
+        
             <div class="mb-3 row">
                 <div class="col-sm-10 offset-sm-2 d-flex justify-content-end">
+                    <input type="hidden" name="eventId" value="#int_event_id#">
                     <button type="reset" class="btn btn-secondary me-2">Reset</button>
                     <button type="submit" class="btn btn-primary">Save Event</button>
                 </div>
@@ -139,8 +234,25 @@
         </form>
         
         </main>
+        
+    </cfoutput>
         <cfinclude template="../footer.cfm">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const eventTimeSelect = document.getElementById("variables.str_time_constraint");
+                const customTimeFields = document.querySelectorAll("#customTimeFields");
+
+                eventTimeSelect.addEventListener("change", function() {
+                    if (this.value === "custom") {
+                        customTimeFields.forEach(field => field.style.display = "block");
+                        document.getElementById("showCustomTimeFields").value = "true";
+                    } else {
+                        customTimeFields.forEach(field => field.style.display = "none");
+                        document.getElementById("showCustomTimeFields").value = "false";
+                    }
+                });
+            });
+        </script>
     </body>
     </html>
-    </cfoutput>
     

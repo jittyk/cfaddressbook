@@ -17,34 +17,41 @@
    <body>
         <cfinclude template="../header.cfm">
         <cfoutput>
-            <main class="container">
+            <main class="container-fluid">
                 <div class="calendar">
-                    <div class="calendar-header">
-                        <h1>Calendar</h1>
-                        <form method="post" class="d-flex">
-                            <select id="month" name="month" onchange="this.form.submit()">
-                                <cfloop index="i" from="1" to="12">
-                                    <option value="#i#" <cfif i eq selectedMonth>selected</cfif>>#monthAsString(i)#</option>
-                                </cfloop>
-                            </select>
-                            <div class="year-navigation d-flex align-items-center ms-3">
-                                <button type="submit" name="year" value="#selectedYear - 1#">&lt;&lt;</button>
-                                <span class="mx-2"><b>#selectedYear#</b></span>
-                                <button type="submit" name="year" value="#selectedYear + 1#">&gt;&gt;</button>
+                    <div class="calendar-header d-flex flex-wrap">
+                        <form method="post" class="d-flex flex-wrap w-100">
+                            <div><label for="month" class="me-2">Month:</label>
+                                <select id="month" name="month" onchange="this.form.submit()">
+                                    <cfloop index="i" from="1" to="12">
+                                        <option value="#i#" <cfif i eq selectedMonth>selected</cfif>>#monthAsString(i)#</option>
+                                    </cfloop>
+                                </select>
+                            </div>
+                            <div class="mt-1">
+                                <label for="year" class="ms-3  me-2">Year:</label>
+                                <select id="year" name="year" onchange="this.form.submit()" >
+                                    <cfloop index="year" from="#variables.selectedYear - 5#" to="#variables.selectedYear + 5#">
+                                        <option value="#year#" <cfif year EQ variables.selectedYear>selected</cfif>>#year#</option>
+                                    </cfloop>
+                                </select>
+                            </div>
+                            <div>
+                                <a href="holidays.cfm" class="btn btn-primary ms-3">Holidays</a>
                             </div>
                         </form>
-                    </div>
+                      </div>
             
-                    <div class="days">
-                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                    <div class="days mt-1">
+                        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
                         
                         <!-- Empty leading spaces -->
                         <cfloop index="i" from="1" to="#dayOfWeek - 1#">
                             <div class="date-cell"></div>
                         </cfloop>
+                        
                         <cfloop array="#datesData#" index="date">
-                            <form action="eventManager.cfm" method="post">
-                                <!-- Hidden input to pass the selected date -->
+                            <form action="eventManager.cfm" method="post" class="w-100">
                                 <input type="hidden" name="date" value="#dateFormat(date.selectedDate, 'yyyy-mm-dd')#">
                                 <button type="submit" 
                                         class="date-cell 

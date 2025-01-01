@@ -1,4 +1,3 @@
-<cfinclude template="addContactAction.cfm">
 <!DOCTYPE html>
 <html lang="en">
 <head>
