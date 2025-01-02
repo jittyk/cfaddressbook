@@ -243,7 +243,7 @@
                 const customTimeFields = document.querySelectorAll("#customTimeFields");
 
                 eventTimeSelect.addEventListener("change", function() {
-                    if (this.value === "custom") {
+                    if (this.value ../header.cfm "custom") {
                         customTimeFields.forEach(field => field.style.display = "block");
                         document.getElementById("showCustomTimeFields").value = "true";
                     } else {
