@@ -36,7 +36,7 @@
                 <cfif form.view EQ "month">
                     Events for #DateFormat(now(), "mmmm yyyy")#
                 <cfelseif form.view EQ "week">
-                    Events for Week #DatePart("W", now())#
+                    Events for the Week 
                 <cfelseif form.view EQ "day">
                    
                     Events for #DateFormat(now(), "mmmm dd, yyyy")#

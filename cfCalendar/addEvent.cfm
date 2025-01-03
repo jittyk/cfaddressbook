@@ -124,52 +124,49 @@
                 <label for="str_recurring" class="col-sm-2 col-form-label">Recurring Event</label>
                 <div class="col-sm-10 ">
                     <select name="str_recurring" id="str_recurring" class="form-control">
-                        <option value="" disabled
-                            <cfif NOT structKeyExists(variables, "str_recurring") OR NOT len(variables.str_recurring)>
-                                selected="selected"
-                            </cfif>
-                        >
-                            Select Recurrence
-                        </option>
-                        <option value="none" 
-                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "none">
-                                selected="selected"
-                            </cfif>
-                        >None</option>
-                        <option value="daily" 
-                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "daily">
-                                selected="selected"
-                            </cfif>
-                        >Daily</option>
-                        <option value="weekly" 
-                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "weekly">
-                                selected="selected"
-                            </cfif>
-                        >Weekly</option>
-                        <option value="monthly" 
-                            <cfif structKeyExists(variables, "str_recurring") AND variables.str_recurring EQ "monthly">
-                                selected="selected"
-                            </cfif>
-                        >Monthly</option>
+                        <option value="" disabled selected>Select Recurrence</option>
+                        <option value="none">None</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
                     </select>
                 </div>
             </div>
+            <div id="weeklyDays" style="display:none;">
+                <div class="mb-3 row">
+                    <label for="days_of_week" class="col-sm-2 col-form-label">Days of the Week</label>
+                    <div class="col-sm-10">
+                        <select name="days_of_week" id="days_of_week" class="form-control" multiple>
+                            <option value="monday">Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                            <option value="saturday">Saturday</option>
+                            <option value="sunday">Sunday</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="monthlyDays" style="display:none;">
+                <div class="mb-3 row">
+                    <label for="days_of_month" class="col-sm-2 col-form-label">Days of the Month</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="days_of_month" id="days_of_month" placeholder="e.g. 1,15,30">
+                    </div>
+                </div>
+            </div>
             <div class="mb-3 row">
-                <label for="int_recurring_duration" class="col-sm-2 col-form-label">Duration </label>
+                <label for="int_recurring_duration" class="col-sm-2 col-form-label">Duration (Months)</label>
                 <div class="col-sm-10">
-                    <input type="number" class="form-control" name="int_recurring_duration" id="int_recurring_duration" placeholder="Enter duration.." min="1" value="#variables.int_recurring_duration#">
+                    <input type="number" class="form-control" name="int_recurring_duration" id="int_recurring_duration" placeholder="Enter duration in months" min="1" value="#variables.int_recurring_duration#">
                 </div>
             </div>
         
             <div class="mb-3 row">
                 <label for="variables.str_time_constraint" class="col-sm-2 col-form-label">Event Time</label>
                 <div class="col-sm-10">
-                    <cfif structKeyExists(variables, "str_time_constraint")>
-                        <cfset selectedPriority = variables.str_time_constraint>
-                    <cfelse>
-                        <cfset selectedPriority = ""> 
-                    </cfif>
-                    
                     <select name="variables.str_time_constraint" id="variables.str_time_constraint" class="form-control">
                         <option value="" disabled
                         <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
@@ -197,30 +194,19 @@
                     </select>
                 </div>
             </div>
-            <cfif showCustomTimeFields>
-                <div class="mb-3 row" id="customTimeFields">
+
+            <div id="customTimeFields" style="display:none;">
+                <div class="mb-3 row">
                     <label for="start_time" class="col-sm-2 col-form-label">Start Time</label>
                     <div class="col-sm-10">
-                        <input type="time" class="form-control" name="start_time" id="start_time" value="#form.start_time#">
+                        <input type="time" class="form-control" name="start_time" id="start_time">
                     </div>
                 </div>
-                <div class="mb-3 row" id="customTimeFields">
+                <div class="mb-3 row">
                     <label for="end_time" class="col-sm-2 col-form-label">End Time</label>
                     <div class="col-sm-10">
-                        <input type="time" class="form-control" name="end_time" id="end_time" value="#form.end_time#">
+                        <input type="time" class="form-control" name="end_time" id="end_time">
                     </div>
-                </div>
-            </cfif>
-            <div class="mb-3 row" id="customTimeFields" style="display:none;">
-                <label for="start_time" class="col-sm-2 col-form-label">Start Time</label>
-                <div class="col-sm-10">
-                    <input type="time" class="form-control" name="start_time" id="start_time">
-                </div>
-            </div>
-            <div class="mb-3 row" id="customTimeFields" style="display:none;">
-                <label for="end_time" class="col-sm-2 col-form-label">End Time</label>
-                <div class="col-sm-10">
-                    <input type="time" class="form-control" name="end_time" id="end_time">
                 </div>
             </div>
         
@@ -239,18 +225,37 @@
         <cfinclude template="../footer.cfm">
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                const eventTimeSelect = document.getElementById("variables.str_time_constraint");
-                const customTimeFields = document.querySelectorAll("#customTimeFields");
+                const recurrenceSelect = document.getElementById("str_recurring");
+                const weeklyDiv = document.getElementById("weeklyDays");
+                const monthlyDiv = document.getElementById("monthlyDays");
 
-                eventTimeSelect.addEventListener("change", function() {
-                    if (this.value ../header.cfm "custom") {
-                        customTimeFields.forEach(field => field.style.display = "block");
-                        document.getElementById("showCustomTimeFields").value = "true";
-                    } else {
-                        customTimeFields.forEach(field => field.style.display = "none");
-                        document.getElementById("showCustomTimeFields").value = "false";
-                    }
-                });
+                function toggleRecurrenceFields() {
+                    const selectedValue = recurrenceSelect.value;
+                    weeklyDiv.style.display = selectedValue === "weekly" ? "block" : "none";
+                    monthlyDiv.style.display = selectedValue === "monthly" ? "block" : "none";
+                }
+
+                // Initial call to set visibility based on the current selection
+                toggleRecurrenceFields();
+
+                // Add event listener to toggle fields on change
+                recurrenceSelect.addEventListener("change", toggleRecurrenceFields);
+            });
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const timeConstraintSelect = document.getElementById("variables.str_time_constraint");
+                const customTimeFields = document.getElementById("customTimeFields");
+
+                function toggleCustomTimeFields() {
+                    const selectedValue = timeConstraintSelect.value;
+                    customTimeFields.style.display = selectedValue === "custom" ? "block" : "none";
+                }
+
+                // Initial call to set visibility based on the current selection
+                toggleCustomTimeFields();
+
+                // Add event listener to toggle fields on change
+                timeConstraintSelect.addEventListener("change", toggleCustomTimeFields);
             });
         </script>
     </body>
