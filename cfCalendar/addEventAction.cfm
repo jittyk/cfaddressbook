@@ -198,38 +198,56 @@
                         <cfset firstOccurrence = DateAdd("d", 7, firstOccurrence)>
                     </cfloop>
                 </cfloop>
-            <cfelseif variables.str_recurring EQ "monthly">
-                <cfset daysArray = ListToArray(variables.days_of_month)>
-                <cfloop from="0" to="#variables.int_recurring_duration - 1#" index="monthIndex">
-                    <cfset newEventMonthDate = DateAdd("m", monthIndex, variables.dt_event_date)>
-                    <cfloop array="#daysArray#" index="day">
-                        <!-- Logic to handle each selected day of the month -->
-                        <cfset eventDate = DateAdd("d", day - 1, newEventMonthDate)>
-                        <cfquery datasource="#datasource#">
-                            INSERT INTO tbl_events (str_event_title, str_description, dt_event_date, str_reminder_email, str_priority, str_recurring, str_time_constraint, int_recurring_duration, dt_start_time, dt_end_time)
-                            VALUES (
-                                <cfqueryparam value="#variables.str_event_title#" cfsqltype="cf_sql_varchar">,
-                                <cfqueryparam value="#variables.str_description#" cfsqltype="cf_sql_longvarchar">,
-                                <cfqueryparam value="#eventDate#" cfsqltype="cf_sql_timestamp">,
-                                <cfqueryparam value="#variables.str_reminder_email#" cfsqltype="cf_sql_varchar">,
-                                <cfqueryparam value="#variables.str_priority#" cfsqltype="cf_sql_varchar">,
-                                <cfqueryparam value="#variables.str_recurring#" cfsqltype="cf_sql_varchar">,
-                                <cfqueryparam value="#variables.str_time_constraint#" cfsqltype="cf_sql_varchar">,
-                                <cfqueryparam value="#variables.int_recurring_duration#" cfsqltype="cf_sql_integer">,
-                                <cfif variables.str_time_constraint EQ "custom">
-                                    dt_start_time = <cfqueryparam value="#variables.dt_start_time#" cfsqltype="cf_sql_timestamp">,
-                                    dt_end_time = <cfqueryparam value="#variables.dt_end_time#" cfsqltype="cf_sql_timestamp">
-                                <cfelseif variables.str_time_constraint EQ "full_day">
-                                    dt_start_time = <cfqueryparam value="00:00:00">,
-                                    dt_end_time = <cfqueryparam value="23:59:59">
-                                <cfelse>
-                                    dt_start_time = <cfqueryparam value="00:00:00">,
-                                    dt_end_time = <cfqueryparam value="11:59:59">
-                                </cfif>
-                            )
-                        </cfquery>
+
+                <cfelseif variables.str_recurring EQ "monthly">
+                    <!--- Process monthly recurrence --->
+                    <cfset daysArray = ListToArray(variables.days_of_month)>
+                    <cfloop from="0" to="#variables.int_recurring_duration - 1#" index="monthIndex">
+                        <cfset newEventMonthDate = DateAdd("m", monthIndex, variables.dt_event_date)>
+                        <cfset currentMonth = Month(newEventMonthDate)>
+                        <cfset currentYear = Year(newEventMonthDate)>
+                        
+                        <cfloop array="#daysArray#" index="dayNum">
+                            <!--- Create date for the specific day in current month --->
+                            <cfset eventDate = CreateDate(currentYear, currentMonth, dayNum)>
+                            
+                            <cfquery datasource="#datasource#">
+                                INSERT INTO tbl_events (
+                                    str_event_title,
+                                    str_description,
+                                    dt_event_date,
+                                    str_reminder_email,
+                                    str_priority,
+                                    str_recurring,
+                                    str_time_constraint,
+                                    int_recurring_duration,
+                                    dt_start_time,
+                                    dt_end_time
+                                )
+                                VALUES (
+                                    <cfqueryparam value="#variables.str_event_title#" cfsqltype="cf_sql_varchar">,
+                                    <cfqueryparam value="#variables.str_description#" cfsqltype="cf_sql_longvarchar">,
+                                    <cfqueryparam value="#eventDate#" cfsqltype="cf_sql_timestamp">,
+                                    <cfqueryparam value="#variables.str_reminder_email#" cfsqltype="cf_sql_varchar">,
+                                    <cfqueryparam value="#variables.str_priority#" cfsqltype="cf_sql_varchar">,
+                                    <cfqueryparam value="#variables.str_recurring#" cfsqltype="cf_sql_varchar">,
+                                    <cfqueryparam value="#variables.str_time_constraint#" cfsqltype="cf_sql_varchar">,
+                                    <cfqueryparam value="#variables.int_recurring_duration#" cfsqltype="cf_sql_integer">,
+                                    <cfif variables.str_time_constraint EQ "custom">
+                                        <cfqueryparam value="#variables.dt_start_time#" cfsqltype="cf_sql_timestamp">,
+                                        <cfqueryparam value="#variables.dt_end_time#" cfsqltype="cf_sql_timestamp">
+                                    <cfelseif variables.str_time_constraint EQ "full_day">
+                                        <cfqueryparam value="00:00:00" cfsqltype="cf_sql_timestamp">,
+                                        <cfqueryparam value="23:59:59" cfsqltype="cf_sql_timestamp">
+                                    <cfelse>
+                                        <cfqueryparam value="00:00:00" cfsqltype="cf_sql_timestamp">,
+                                        <cfqueryparam value="11:59:59" cfsqltype="cf_sql_timestamp">
+                                    </cfif>
+                                )
+                            </cfquery>
+                        </cfloop>
                     </cfloop>
-                </cfloop>
+             
             <cfelseif variables.str_recurring EQ "daily">
                 <!-- Logic for daily recurrence -->
                 <cfloop from="0" to="#variables.int_recurring_duration - 1#" index="dayIndex">
