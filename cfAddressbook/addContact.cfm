@@ -61,7 +61,7 @@
             <div class="mb-3 row">
                 <label for="int_qualification" class="col-sm-2 col-form-label">Qualification</label>
                 <div class="col-sm-10">
-                    <select name="int_qualification" id="int_qualification" required>
+                    <select name="int_qualification" id="int_qualification" class="form-control">
                         <!-- Default option -->
                         <option value="" disabled
                             <cfif NOT structKeyExists(variables, "contact") OR NOT contact.recordCount OR NOT len(contact.int_qualification)>
@@ -93,9 +93,9 @@
             
             
             <div class="mb-3 row">
-                <label for="int_country_id" class="col-sm-2 col-form-label">Country</label>
+                <label for="int_country_id" class="col-sm-2 col-form-label ">Country</label>
                 <div class="col-sm-10">
-                    <select name="int_country" id="int_country" required>
+                    <select name="int_country" id="int_country" class="form-control">
                         <!-- Default option -->
                         <option value="" disabled
                             <cfif NOT structKeyExists(variables, "contact") OR NOT contact.recordCount OR NOT len(contact.int_country)>

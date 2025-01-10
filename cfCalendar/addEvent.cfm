@@ -32,42 +32,30 @@
                 <input type="hidden" name="int_event_id" value="0">
             </cfif>
         
-            <div class="mb-3 row">
-                <label for="str_event_title" class="col-sm-2 col-form-label">Event Title</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="str_event_title" id="str_event_title" placeholder="Event name.."
-                        <cfif structKeyExists(variables.qryGetEvents, 'str_event_title') AND variables.qryGetEvents.recordCount GT 0>
-                            value="#variables.qryGetEvents.str_event_title#"
-                        <cfelse>
-                            value="" 
-                        </cfif>
-                       >
+                <div class="mb-3 row">
+                    <label for="str_event_title" class="col-sm-2 col-form-label">Event Title</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="str_event_title" id="str_event_title" 
+                            placeholder="Event name.." value="#variables.str_event_title#" required>
+                    </div>
                 </div>
+
+               
                 
             </div>
             <div class="mb-3 row">
                 <label for="str_description" class="col-sm-2 col-form-label">Event Description</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="str_description" id="str_description" placeholder="Event description.."
-                        <cfif structKeyExists(variables.qryGetEvents, 'str_description') AND variables.qryGetEvents.recordCount GT 0>
-                            value="#variables.qryGetEvents.str_description#"
-                        <cfelse>
-                            value=""  
-                        </cfif>
-                        >
+                <div class="col-sm-10"> 
+                    <input type="text" class="form-control" name="str_description" id="str_description" 
+                    placeholder="Event description.." value="#variables.str_description#" required>
                 </div>
                 
             </div>
             <div class="mb-3 row">
                 <label for="dt_event_date" class="col-sm-2 col-form-label">Event Date</label>
                 <div class="col-sm-10">
-                    <cfif structKeyExists(variables.qryGetEvents, 'dt_event_date') AND variables.qryGetEvents.recordCount GT 0>
-                        <input type="date" class="form-control" name="dt_event_date" id="dt_event_date" 
-               value="#variables.dateString#">
-                <cfelse>
-                    <input type="date" class="form-control" name="dt_event_date" id="dt_event_date">
-                
-                </cfif>
+                    <input type="date" class="form-control" name="dt_event_date" id="dt_event_date" 
+                    value="#variables.dateString#">
             </div>
             </div>
         
@@ -121,15 +109,15 @@
             </div>
         
             <div class="mb-3 row ">
-                <label for="str_recurring" class="col-sm-2 col-form-label">Recurring Event</label>
+                <label for="str_recurrence_type" class="col-sm-2 col-form-label">Recurring Event</label>
                 <div class="col-sm-10 ">
-                    <select name="str_recurring" id="str_recurring" class="form-control">
-                        <option value="" disabled selected>Select Recurrence</option>
-                        <option value="none">None</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
+                    <select name="str_recurrence_type" id="str_recurrence_type" class="form-control">
+                        <option value="none" <cfif variables.str_recurrence_type EQ "none">selected</cfif>>None</option>
+                        <option value="daily" <cfif variables.str_recurrence_type EQ "daily">selected</cfif>>Daily</option>
+                        <option value="weekly" <cfif variables.str_recurrence_type EQ "weekly">selected</cfif>>Weekly</option>
+                        <option value="monthly" <cfif variables.str_recurrence_type EQ "monthly">selected</cfif>>Monthly</option>
                     </select>
+                    
                 </div>
             </div>
             <div id="weeklyDays" style="display:none;">
@@ -168,30 +156,12 @@
                 <label for="variables.str_time_constraint" class="col-sm-2 col-form-label">Event Time</label>
                 <div class="col-sm-10">
                     <select name="variables.str_time_constraint" id="variables.str_time_constraint" class="form-control">
-                        <option value="" disabled
-                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
-                            selected="selected"
-                        </cfif>
-                        >
-                            Select Time Option
-                        </option>
-
-                        <option value="full_day"
-                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
-                            selected="selected"
-                        </cfif>
-                        >Full Day</option>
-                        <option value="half_day"
-                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
-                            selected="selected"
-                        </cfif>
-                        >Half Day</option>
-                        <option value="custom"
-                        <cfif NOT structKeyExists(variables,str_time_constraint) OR NOT len(variables.str_time_constraint)>
-                            selected="selected"
-                        </cfif>
-                        >Custom</option>
+                        <option value="" disabled <cfif NOT structKeyExists(variables, "str_time_constraint") OR NOT len(variables.str_time_constraint)>selected</cfif>>Select Time Option</option>
+                        <option value="full_day" <cfif variables.str_time_constraint EQ "full_day">selected</cfif>>Full Day</option>
+                        <option value="half_day" <cfif variables.str_time_constraint EQ "half_day">selected</cfif>>Half Day</option>
+                        <option value="custom" <cfif variables.str_time_constraint EQ "custom">selected</cfif>>Custom</option>
                     </select>
+                    
                 </div>
             </div>
 
@@ -199,13 +169,13 @@
                 <div class="mb-3 row">
                     <label for="start_time" class="col-sm-2 col-form-label">Start Time</label>
                     <div class="col-sm-10">
-                        <input type="time" class="form-control" name="start_time" id="start_time">
+                        <input type="time" class="form-control" name="start_time" id="start_time" value="#variables.dt_start_time#">
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="end_time" class="col-sm-2 col-form-label">End Time</label>
                     <div class="col-sm-10">
-                        <input type="time" class="form-control" name="end_time" id="end_time">
+                        <input type="time" class="form-control" name="end_time" id="end_time" value="#variables.dt_end_time#">
                     </div>
                 </div>
             </div>
@@ -225,7 +195,7 @@
         <cfinclude template="../footer.cfm">
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                const recurrenceSelect = document.getElementById("str_recurring");
+                const recurrenceSelect = document.getElementById("str_recurrence_type");
                 const weeklyDiv = document.getElementById("weeklyDays");
                 const monthlyDiv = document.getElementById("monthlyDays");
 

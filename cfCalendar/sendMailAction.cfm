@@ -29,13 +29,14 @@
         <cfset var formattedStartTime = timeFormat(arguments.event.dt_start_time, "HH:mm:ss")>
         <cfset var formattedEndTime = timeFormat(arguments.event.dt_end_time, "HH:mm:ss")>
  
-            to="#arguments.event.str_reminder_email#" 
-            subject="Reminder: Upcoming Event - #arguments.event.str_event_title#">
-            This is a reminder for your upcoming event titled "#arguments.event.str_event_title#".<br><br>
-            Description: #arguments.event.str_description#<br>
-            Priority: #arguments.event.str_priority#<br>
-            Start Time: #event.dt_start_time#<br>
-            End Time: #dt_end_time#<br>
+        <cfmail from="jitty.abraham@techversantinfotech.com" 
+                to="#arguments.event.str_reminder_email#" 
+                subject="Reminder: Upcoming Event - #arguments.event.str_event_title#">
+                    This is a reminder for your upcoming event titled "#arguments.event.str_event_title#".<br><br>
+                    Description: #arguments.event.str_description#<br>
+                    Priority: #arguments.event.str_priority#<br>
+                    Start Time: #formattedStartTime#<br>
+                    End Time: #formattedEndTime#<br>    
         </cfmail>
         <cfset logEmailStatus(event=arguments.event, status="sent")>
         <cfreturn true>

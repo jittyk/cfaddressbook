@@ -3,7 +3,7 @@
     <cftry>
         <cfif getEvents.recordCount GT 0>
             <cfloop query="getEvents">
-                <cfif  emailSentFlag EQ false>
+                <cfif  bit_mail_sent EQ 0>
                     <p>Error sending email to #getEvents.str_reminder_email#: #cfcatch.message#</p>
                 </cfif> 
             </cfloop>

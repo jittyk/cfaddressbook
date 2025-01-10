@@ -15,9 +15,9 @@
             <cfif structKeyExists(variables, "message")>
                 <p>#variables.message#</p>
             </cfif>
-            <cfif eventQuery.recordCount GT 0>
+            <cfif qryEvents.recordCount GT 0>
                 <ul class="list-group">
-                    <cfloop query="eventQuery">
+                    <cfloop query="qryEvents">
                         <li class="list-group-item">
                             <h5>#str_event_title#</h5>
                             <p><strong>Description:</strong> #str_description#</p>
@@ -30,20 +30,20 @@
                                 </span>
                             </p>
                             
-                            <p><strong>Recurring:</strong> #str_recurring#</p>
-                            <p><strong>Start Time:</strong> #timeFormat(eventQuery.dt_start_time, "HH:mm:ss")#</p>
-                            <p><strong>End Time:</strong> #timeFormat(eventQuery.dt_end_time, "HH:mm:ss")#</p>
+                            <p><strong>Recurring:</strong> #str_recurrence_type#</p>
+                            <p><strong>Start Time:</strong> #timeFormat(qryEvents.dt_start_time, "HH:mm:ss")#</p>
+                            <p><strong>End Time:</strong> #timeFormat(qryEvents.dt_end_time, "HH:mm:ss")#</p>
                             
                             <!-- Edit Event Form -->
                             <form action="addEvent.cfm" method="post">
-                                <input type="hidden" name="eventId" value="#int_event_id#">
+                                <input type="hidden" name="eventId" value="#id#">
                                 <input type="hidden" name="selectedDate" value="#dateFormat(selectedDate, 'yyyy-mm-dd')#">
                                 <button type="submit" class="btn btn-warning">Edit</button>
                             </form>
         
                             <!-- Delete Event Form -->
                             <form action="deleteEvent.cfm" method="post">
-                                <input type="hidden" name="eventId" value="#int_event_id#">
+                                <input type="hidden" name="eventId" value="#id#">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
                         </li>
