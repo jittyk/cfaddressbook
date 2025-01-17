@@ -3,10 +3,11 @@
     <cfargument name="selectedDate" type="date" required="true">
     <cfargument name="datasource" type="string" required="true">
 
-    <cfset var qryEvents = "">
+    <cfset var qryEvents = "" />
+    <cfset var formattedDate = dateFormat(arguments.selectedDate, "yyyy-mm-dd") />
+    <cfset var startDate = dateAdd("d", -30, arguments.selectedDate) />
+    <cfset var endDate = dateAdd("d", 30, arguments.selectedDate) />
 
-    <cfset selectedDate = dateFormat(arguments.selectedDate, "yyyy-mm-dd")>
-            
     <cfquery name="qryEvents" datasource="#arguments.datasource#">
         SELECT 
             int_event_id AS id,
@@ -25,32 +26,46 @@
             int_recurring_duration
         FROM tbl_events
         WHERE 
-            (dt_event_date = <cfqueryparam value="#selectedDate#" cfsqltype="cf_sql_date">)
+            (str_recurrence_type = 'none' AND dt_event_date = <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">)
             OR 
-            (str_recurrence_type = 'daily' AND DATE_ADD(dt_event_date, INTERVAL int_recurring_duration DAY) >= <cfqueryparam value="#selectedDate#" cfsqltype="cf_sql_date">)
+            (str_recurrence_type = 'daily' AND dt_event_date <= <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date"> 
+                AND DATE_ADD(dt_event_date, INTERVAL int_recurring_duration - 1 DAY) >= <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">
+            )
+            <!--- Match weekly recurrence for multiple days of the week --->
             OR 
-            (str_recurrence_type = 'weekly' AND days_of_week LIKE CONCAT('%', DAYOFWEEK(<cfqueryparam value="#selectedDate#" cfsqltype="cf_sql_date">), '%'))
-            OR 
-            (str_recurrence_type = 'monthly' AND days_of_month LIKE CONCAT('%', DAY(<cfqueryparam value="#selectedDate#" cfsqltype="cf_sql_date">), '%'))
-    </cfquery>
+            (
+                str_recurrence_type = 'weekly'
+                AND dt_event_date <= <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">
+                AND DATE_ADD(dt_event_date, INTERVAL int_recurring_duration MONTH) >= <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">
+                AND FIND_IN_SET(DAYNAME(<cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">), days_of_week) > 0
+                AND days_of_week IS NOT NULL
+                AND days_of_week != ''
+                
+            )
 
-    <cfreturn qryEvents>
+            OR 
+            (str_recurrence_type = 'monthly' AND dt_event_date <= <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">
+                AND FIND_IN_SET(DAY(<cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">), days_of_month) > 0
+                AND DATE_ADD(dt_event_date, INTERVAL int_recurring_duration MONTH) >= <cfqueryparam value="#formattedDate#" cfsqltype="cf_sql_date">
+            )
+    </cfquery>
+    
+    <cfreturn qryEvents />
 </cffunction>
 
 <!-- Control Block -->
 <cfset variables.datasource = "dsn_address_book">
 
-<!-- Check if form.date exists -->
+<!-- Determine the selected date -->
 <cfif structKeyExists(form, "date")>
     <cfset selectedDate = parseDateTime(form.date)>
 <cfelse>
-    <!-- Default to current date if form.date is not set -->
-    <cfset selectedDate = now()>
+    <cfset selectedDate = now()> <!-- Default to current date if not provided -->
 </cfif>
 
-<!-- Query events using the selected date -->
+<!-- Query events for the selected date -->
 <cfset qryEvents = getEvents(selectedDate, variables.datasource)>
 
-<!-- Pass qryEvents and selectedDate to the display page -->
+<!-- Store queried events and the selected date in variables -->
 <cfset variables.qryEvents = qryEvents>
 <cfset variables.selectedDate = selectedDate>

@@ -35,129 +35,143 @@
     SELECT 
         dt_event_date,
         str_event_title,
+        str_description,
         str_recurrence_type,
-        days_of_month,
         days_of_week,
         days_of_month,
         int_recurring_duration
     FROM tbl_events
 </cfquery>
 
-<!-- Create an array for event dates -->
-<cfset eventDates = []>
+<!-- Process recurring events -->
+<cfset recurringEvents = []>
 <cfloop query="qryEvents">
-    <cfset arrayAppend(eventDates, qryEvents.dt_event_date)>
+
+    <!-- Set the start date -->
+    <cfset startDate = qryEvents.dt_event_date>
+    
+    <!-- Determine the end date based on the recurrence type -->
+    <cfif qryEvents.str_recurrence_type EQ "daily">
+        <!-- Daily: Add the number of days (int_recurring_duration) to the start date -->
+        <cfset endDate = dateAdd("d", qryEvents.int_recurring_duration-1, startDate)>
+    <cfelseif qryEvents.str_recurrence_type EQ "weekly">
+        <!-- Weekly: Add weeks (int_recurring_duration * 7 days) -->
+        <cfset endDate = dateAdd("m", qryEvents.int_recurring_duration * 7, startDate)>
+    <cfelseif qryEvents.str_recurrence_type EQ "monthly">
+        <!-- Monthly: Add months (int_recurring_duration) -->
+        <cfset endDate = dateAdd("m", qryEvents.int_recurring_duration, startDate)>
+    <cfelse>
+        <!-- None: Start and end date are the same -->
+        <cfset endDate = startDate>
+    </cfif>
+
+    
+    <!-- Daily Recurrence -->
+    <cfif str_recurrence_type EQ "daily">
+        <cfset eventdate = startDate>
+        <cfloop condition="eventDate LTE endDate">
+            <cfset arrayAppend(recurringEvents, eventDate)>
+            <cfset eventDate = dateAdd("d", 1, eventDate)>
+        </cfloop>
+    </cfif>
+    
+    <cfif str_recurrence_type EQ "weekly">
+        <!--- Mapping day names to their corresponding integer values --->
+        <cfset dayNamesToNumbers = {
+            "Sunday" = 1,
+            "Monday" = 2,
+            "Tuesday" = 3,
+            "Wednesday" = 4,
+            "Thursday" = 5,
+            "Friday" = 6,
+            "Saturday" = 7
+        }>
+        
+        <!--- Convert the comma-separated days_of_week values from the query result (day names) to an array of integers --->
+        <cfset selectedDays = []>
+        <cfloop array="#listToArray(qryEvents.days_of_week)#" index="dayName">
+            <cfset arrayAppend(selectedDays, dayNamesToNumbers[dayName])>
+        </cfloop>
+        
+        <cfset eventdate = startDate>
+        
+        <cfloop condition="eventdate LTE endDate">
+            <!--- Get the day of the week (integer value) --->
+            <cfset day = dayOfWeek(eventdate)>
+            
+            <!--- Check if the selectedDays array contains the current day number --->
+            <cfif arrayContains(selectedDays, day)>
+                <!--- Append the eventdate to recurringEvents if the day matches --->
+                <cfset arrayAppend(recurringEvents, eventdate)>
+            </cfif>
+            
+            <!--- Increment the eventdate by 1 day to check the next day --->
+            <cfset eventdate = dateAdd("d", 1, eventdate)>
+        </cfloop>
+    </cfif>
+    
+    <!-- Monthly Recurrence -->
+    <cfif str_recurrence_type EQ "monthly">
+        <cfset selectedDates = listToArray(qryEvents.days_of_month)>
+        <cfset currentDate = startDate>
+        <cfloop condition="currentDate LTE endDate">
+            <!-- Check if the day of the month is in the selected dates -->
+            <cfif arrayContains(selectedDates, day(currentDate))>
+                <cfset arrayAppend(recurringEvents, currentDate)>
+            </cfif>
+            <cfset currentDate = dateAdd("d", 1, currentDate)>
+        </cfloop>
+    </cfif>
 </cfloop>
+<cfquery name="qryNonRecurringEvents" datasource="#variables.datasource#">
+    SELECT 
+        dt_event_date,
+        str_event_title,
+        str_description
+    FROM tbl_events
+    WHERE str_recurrence_type = "none"
+</cfquery>
+
+<!-- Process Non-Recurring Events -->
+<cfset nonRecurringEvents = []>
+<cfloop query="qryNonRecurringEvents">
+    <cfset arrayAppend(nonRecurringEvents, qryNonRecurringEvents.dt_event_date)>
+</cfloop>
+
+<!-- Combine Recurring and Non-Recurring Events -->
+<cfset allEvents = recurringEvents>
+<cfset arrayAppend(allEvents, nonRecurringEvents)>
 
 <!-- Process the calendar data -->
 <cfset datesData = []>
 <cfloop index="day" from="1" to="#daysInMonth#">
-    <cfset selectedDate = createDate(variables.selectedYear, selectedMonth, day)>
+    <cfset selectedDate = createDate(selectedYear, selectedMonth, day)>
+    <cfset formattedDate = dateFormat(selectedDate, "yyyy-mm-dd")>
     <cfset isToday = (
-        day eq day(now()) 
-        AND selectedMonth eq month(now()) 
-        AND variables.selectedYear eq year(now())
+        day EQ day(now()) 
+        AND selectedMonth EQ month(now()) 
+        AND selectedYear EQ year(now())
     )>
     <cfset isHoliday = false>
     <cfset hasEvent = false>
+
+    <!-- Mark Sundays as holidays -->
+    <cfif dayOfWeek(selectedDate) EQ 1>
+        <cfset isHoliday = true>
+    </cfif>
+    <!-- Mark second and fourth Saturdays as holidays -->
+    <cfif dayOfWeek(selectedDate) EQ 7 AND (int((day - 1) / 7) EQ 1 OR int((day - 1) / 7) EQ 3)>
+        <cfset isHoliday = true>
+    </cfif>
     
-    <!-- Check if the current day is a holiday from the database -->
+    <!-- Check if the date is in the holiday list -->
     <cfif arrayContains(holidays, selectedDate)>
         <cfset isHoliday = true>
     </cfif>
     
-    <!-- Mark Sundays as holidays -->
-    <cfif dayOfWeek(selectedDate) eq 1>
-        <cfset isHoliday = true>
-    </cfif>
-    
-    <!-- Mark the second Saturday as a holiday -->
-    <cfif dayOfWeek(selectedDate) eq 7 AND (int((day - 1) / 7) eq 1 or int((day-1) / 7) eq 3)>
-        <cfset isHoliday = true>
-    </cfif>
-    
-    <!-- Check for daily recurring events -->
-    <cfloop query="qryEvents">
-        <!-- DAILY RECURRING EVENTS -->
-        <cfif qryEvents.str_recurrence_type EQ "daily">
-            <cfif selectedDate GTE qryEvents.dt_event_date AND 
-                selectedDate LTE dateAdd("d", qryEvents.int_recurring_duration, qryEvents.dt_event_date)>
-                <cfset hasEvent = true>
-                <cfbreak>
-            </cfif>
-        </cfif>
-
-        <cfif qryEvents.str_recurrence_type EQ "weekly">
-            <!-- Calculate the end date based on the recurrence duration in months -->
-            <cfset endDate = dateAdd("m", qryEvents.int_recurring_duration, qryEvents.dt_event_date)>
-
-            <!-- Loop through weeks from start date to end date -->
-            <cfset currentDate = qryEvents.dt_event_date>
-
-            <!-- Convert comma-separated days_of_week string to an array -->
-            <cfset selectedDays = listToArray(qryEvents.days_of_week)> <!-- Convert days_of_week to an array -->
-            
-            <!-- Repeat weekly -->
-            <cfloop condition="currentDate LTE endDate">
-                <cfset currentDay = dayOfWeekName(currentDate)>
-                <!-- Check if the current day of the week is one of the selected days -->
-                <cfif listFind(selectedDays, currentDay)>
-                    <!-- Check if the selected date matches the current date in the recurrence cycle -->
-                    <cfif selectedDate EQ currentDate>
-                        <cfset hasEvent = true>
-                        <cfbreak>
-                    </cfif>
-                </cfif>
-                
-                <!-- Move to next week (same days of the week) -->
-                <cfset currentDate = dateAdd("d", 7, currentDate)>
-            </cfloop>
-        </cfif>
-
-        <!-- MONTHLY RECURRING EVENTS -->
-        <cfif qryEvents.str_recurrence_type EQ "monthly">
-            <!-- Calculate the end date based on the recurrence duration in months -->
-            <cfset endDate = dateAdd("m", qryEvents.int_recurring_duration, qryEvents.dt_event_date)>
-
-            <!-- Initialize the starting date -->
-            <cfset currentDate = qryEvents.dt_event_date>
-            <!-- Convert comma-separated days_of_month string to an array -->
-            <cfset selectedDates = listToArray(qryEvents.days_of_month)> 
-            <!-- Check if selectedDates is an array -->
-            <cfif isArray(selectedDates)>
-                <!-- Loop through months from start date to end date -->
-                <cfloop condition="currentDate LTE endDate">
-                    <!-- Get the day of the month -->
-                    <cfset currentDay = day(currentDate)> <!-- Get the day of the month -->
-
-                    <!-- Check if the current day of the month is in the selected dates -->
-                    <cfif listFind(selectedDates, currentDate)>
-                        <!-- Check if the selected date matches the current date in the recurrence cycle -->
-                        <cfif selectedDate EQ currentDate>
-                            <cfset hasEvent = true>
-                            <cfbreak>
-                        </cfif>
-                    </cfif>
-
-                    <!-- Move to next month -->
-                    <cfset currentDate = dateAdd("m", 1, currentDate)>
-                </cfloop>
-            <cfelse>
-                <!-- Handle error if selectedDates is not an array -->
-                <cfset hasEvent = false>
-            </cfif>
-        </cfif>
-
-
-
-
-    </cfloop>
-
-    <!-- Check if the current date matches any event date -->
-    <cfif arrayContains(eventDates, dateFormat(selectedDate, "yyyy-mm-dd"))>
+    <cfif arrayContains(allEvents, selectedDate)>
         <cfset hasEvent = true>
     </cfif>
-
     <!-- Append the day's data -->
     <cfset arrayAppend(datesData, { 
         "day" = day, 
